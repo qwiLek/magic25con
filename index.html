@@ -16,6 +16,9 @@
     --border: #262b36;
     --chip: #222732;
     --chip-active: #e05a2b;
+    --copy: #2a3140;
+    --copy-hover: #343d4f;
+    --ok: #3ba55d;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -117,7 +120,7 @@
   }
   .server:hover { background: var(--card-hover); border-color: #333a48; }
 
-  .info { min-width: 0; }
+  .info { min-width: 0; flex: 1; }
   .name { font-weight: 600; font-size: 1rem; }
   .name .tag {
     font-size: 0.72rem;
@@ -138,8 +141,39 @@
   }
   .note { color: #c9a227; font-size: 0.78rem; margin-top: 4px; }
 
-  .btn {
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
+  }
+
+  /* Квадратная кнопка-иконка */
+  .copy-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: var(--copy);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.05s;
+  }
+  .copy-btn:hover { background: var(--copy-hover); border-color: #3a4252; }
+  .copy-btn:active { transform: scale(0.95); }
+  .copy-btn.copied {
+    background: var(--ok);
+    border-color: var(--ok);
+    color: #fff;
+  }
+  .copy-btn svg { width: 18px; height: 18px; display: block; }
+
+  .btn {
     background: var(--accent);
     color: #fff;
     border: none;
@@ -150,6 +184,7 @@
     cursor: pointer;
     transition: background 0.15s, transform 0.05s;
     white-space: nowrap;
+    height: 40px;
   }
   .btn:hover { background: var(--accent-hover); }
   .btn:active { transform: scale(0.97); }
@@ -180,10 +215,20 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast b { color: var(--accent); }
+  .toast code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: #171a21;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    color: #c9d1d9;
+  }
 
-  @media (max-width: 520px) {
+  @media (max-width: 560px) {
     .server { flex-direction: column; align-items: stretch; }
-    .btn { width: 100%; padding: 11px; }
+    .actions { justify-content: space-between; }
+    .copy-btn { width: 44px; height: 44px; }
+    .btn { flex: 1; height: 44px; }
     .filter-label { width: 100%; margin-bottom: 2px; }
     .filters { position: static; }
   }
@@ -193,7 +238,7 @@
 <div class="wrap">
   <header>
     <h1>Magic <span>Rust</span></h1>
-    <p>Выбери сервер и нажми «Подключиться»</p>
+    <p>Выбери сервер и нажми «Подключиться» или скопируй команду для консоли</p>
   </header>
 
   <div class="filters">
@@ -301,15 +346,15 @@ const DAYS = [
 const TEAM_LABELS = { solo: "Solo", duo: "Duo", trio: "Trio", nolimit: "No limit" };
 const TYPE_LABELS = { vanilla: "Vanilla", modded: "Modded", classic: "Classic" };
 
-// ---------------------------------------------------------------
-// Состояние фильтров (Set — чтобы можно было выбрать несколько)
-// ---------------------------------------------------------------
 const state = { team: new Set(), type: new Set() };
 
 const menuEl   = document.getElementById("menu");
 const toastEl  = document.getElementById("toast");
 const teamChipsEl = document.getElementById("teamChips");
 const typeChipsEl = document.getElementById("typeChips");
+
+const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
 function showToast(html) {
   toastEl.innerHTML = html;
@@ -326,9 +371,39 @@ function connect(server) {
             "Если Steam не открылся — разреши браузеру запустить приложение.");
 }
 
-// ---------------------------------------------------------------
-// Построение чипов-фильтров
-// ---------------------------------------------------------------
+async function copyCommand(server, btn) {
+  const cmd = "client.connect " + server.ip + ":" + server.port;
+  let ok = false;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(cmd);
+      ok = true;
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = cmd;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+  } catch (e) { ok = false; }
+
+  if (ok) {
+    btn.classList.add("copied");
+    btn.innerHTML = CHECK_ICON;
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.innerHTML = COPY_ICON;
+    }, 2000);
+    showToast("Команда скопирована:<br><code>" + cmd + "</code>");
+  } else {
+    showToast("Не удалось скопировать. Скопируй вручную:<br><code>" + cmd + "</code>");
+  }
+}
+
 function buildChips(container, labels, stateKey) {
   container.innerHTML = "";
   Object.entries(labels).forEach(([key, label]) => {
@@ -353,9 +428,6 @@ function resetFilters() {
   render();
 }
 
-// ---------------------------------------------------------------
-// Рендер списка с учётом фильтров
-// ---------------------------------------------------------------
 function matches(server) {
   const teamOk = state.team.size === 0 || state.team.has(server.team);
   const typeOk = state.type.size === 0 || state.type.has(server.type);
@@ -406,13 +478,26 @@ function render() {
         info.appendChild(note);
       }
 
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.innerHTML = COPY_ICON;
+      copyBtn.title = "Скопировать команду для консоли Rust";
+      copyBtn.setAttribute("aria-label", "Скопировать команду для консоли");
+      copyBtn.addEventListener("click", () => copyCommand(s, copyBtn));
+
       const btn = document.createElement("button");
       btn.className = "btn";
       btn.textContent = "Подключиться";
       btn.addEventListener("click", () => connect(s));
 
+      actions.appendChild(copyBtn);
+      actions.appendChild(btn);
+
       row.appendChild(info);
-      row.appendChild(btn);
+      row.appendChild(actions);
       list.appendChild(row);
     });
 
@@ -428,9 +513,6 @@ function render() {
   }
 }
 
-// ---------------------------------------------------------------
-// Инициализация
-// ---------------------------------------------------------------
 buildChips(teamChipsEl, TEAM_LABELS, "team");
 buildChips(typeChipsEl, TYPE_LABELS, "type");
 document.getElementById("resetBtn").addEventListener("click", resetFilters);
