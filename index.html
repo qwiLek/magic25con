@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magic Rust â ÐÐ¾Ð´ÐºÐ»ÑÑÐµÐ½Ð¸Ðµ Ðº ÑÐµÑÐ²ÐµÑÐ°Ð¼</title>
+<title>Magic Rust — Подключение к серверам</title>
 <style>
   :root {
     --bg: #0f1115; --card: #171a21; --card-hover: #1e222b;
@@ -69,7 +69,7 @@
   .toast b { color: var(--accent); }
   .toast code { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: #171a21; padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; color: #c9d1d9; }
 
-  /* ÐÐ´Ð¼Ð¸Ð½ÐºÐ° */
+  /* Админка */
   .admin-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 90; }
   .admin-toggle:hover { background: var(--card-hover); }
   .admin-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
@@ -99,7 +99,7 @@
   .admin-item-actions .edit { color: var(--warn); }
   .admin-item-actions .delete { color: var(--danger); }
 
-  /* ÐÐ»Ð¾Ðº Ð¿ÑÐ±Ð»Ð¸ÐºÐ°ÑÐ¸Ð¸ */
+  /* Блок публикации */
   .publish-box {
     margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
   }
@@ -110,14 +110,20 @@
   .publish-row label { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--muted); gap: 4px; }
   .publish-row input { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px; color: var(--text); font-family: inherit; font-size: 0.9rem; }
   .publish-row input:focus { outline: none; border-color: var(--accent); }
-  .btn-publish { background: var(--ok); color: #fff; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  
+  .btn-publish { background: var(--ok); color: #fff; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; margin-bottom: 8px; }
   .btn-publish:hover { background: #2f8b4a; }
   .btn-publish:disabled { opacity: 0.6; cursor: wait; }
+  
+  /* Кнопка скачивания файла (резервная) */
+  .btn-download { background: transparent; color: var(--text); border: 1px solid var(--border); width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  .btn-download:hover { background: var(--card-hover); }
+
   .publish-status { margin-top: 10px; font-size: 0.82rem; text-align: center; min-height: 1.2em; }
   .publish-status.ok { color: var(--ok); }
   .publish-status.err { color: var(--danger); }
 
-  /* ÐÐºÐ½Ð¾ Ð°Ð²ÑÐ¾ÑÐ¸Ð·Ð°ÑÐ¸Ð¸ */
+  /* Окно авторизации */
   .auth-widget {
     position: fixed; bottom: 80px; right: 20px;
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -158,22 +164,22 @@
 <div class="wrap">
   <header>
     <h1>Magic <span>Rust</span></h1>
-    <p>ÐÑÐ±ÐµÑÐ¸ ÑÐµÑÐ²ÐµÑ Ð¸ Ð½Ð°Ð¶Ð¼Ð¸ Â«ÐÐ¾Ð´ÐºÐ»ÑÑÐ¸ÑÑÑÑÂ» Ð¸Ð»Ð¸ ÑÐºÐ¾Ð¿Ð¸ÑÑÐ¹ ÐºÐ¾Ð¼Ð°Ð½Ð´Ñ Ð´Ð»Ñ ÐºÐ¾Ð½ÑÐ¾Ð»Ð¸</p>
+    <p>Выбери сервер и нажми «Подключиться» или скопируй команду для консоли</p>
   </header>
 
   <div class="filters">
     <div class="filter-row">
-      <span class="filter-label">ÐÐ¾Ð¼Ð°Ð½Ð´Ð°</span>
+      <span class="filter-label">Команда</span>
       <div class="chips" id="teamChips"></div>
     </div>
     <div class="filter-row">
-      <span class="filter-label">Ð¢Ð¸Ð¿</span>
+      <span class="filter-label">Тип</span>
       <div class="chips" id="typeChips"></div>
     </div>
     <div class="filter-row">
-      <span class="filter-label">ÐÐ°Ð¹Ð¿</span>
+      <span class="filter-label">Вайп</span>
       <div class="chips" id="wipeChips"></div>
-      <button class="reset" id="resetBtn">Ð¡Ð±ÑÐ¾ÑÐ¸ÑÑ</button>
+      <button class="reset" id="resetBtn">Сбросить</button>
     </div>
   </div>
 
@@ -182,445 +188,160 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ÐÐ½Ð¾Ð¿ÐºÐ° ÑÐµÑÑÐµÑÐµÐ½ÐºÐ¸ -->
-<button class="admin-toggle" id="adminToggle" title="ÐÐ´Ð¼Ð¸Ð½ÐºÐ°">â</button>
+<!-- Кнопка шестеренки -->
+<button class="admin-toggle" id="adminToggle" title="Админка">⚙</button>
 
-<!-- ÐÐºÐ½Ð¾ Ð°Ð²ÑÐ¾ÑÐ¸Ð·Ð°ÑÐ¸Ð¸ (Ð¿Ð¾ÑÐ²Ð»ÑÐµÑÑÑ Ð²Ð¾Ð·Ð»Ðµ ÑÐµÑÑÐµÑÐµÐ½ÐºÐ¸) -->
+<!-- Окно авторизации (появляется возле шестеренки) -->
 <div class="auth-widget" id="authWidget">
   <div class="auth-header">
-    <span>ÐÑÐ¾Ð´</span>
-    <button class="auth-close-btn" id="authCloseBtn" title="ÐÐ°ÐºÑÑÑÑ">â</button>
+    <span>Вход</span>
+    <button class="auth-close-btn" id="authCloseBtn" title="Закрыть">✕</button>
   </div>
-  <input type="text" id="authLogin" placeholder="ÐÐ¾Ð³Ð¸Ð½">
-  <input type="password" id="authPassword" placeholder="ÐÐ°ÑÐ¾Ð»Ñ">
-  <div class="auth-error" id="authError">ÐÐµÐ²ÐµÑÐ½ÑÐµ Ð´Ð°Ð½Ð½ÑÐµ</div>
-  <button class="submit" id="authSubmit">ÐÐ¾Ð¹ÑÐ¸</button>
+  <input type="text" id="authLogin" placeholder="Логин">
+  <input type="password" id="authPassword" placeholder="Пароль">
+  <div class="auth-error" id="authError">Неверные данные</div>
+  <button class="submit" id="authSubmit">Войти</button>
 </div>
 
-<!-- ÐÑÐ½Ð¾Ð²Ð½Ð¾Ðµ Ð¾ÐºÐ½Ð¾ Ð°Ð´Ð¼Ð¸Ð½ÐºÐ¸ -->
+<!-- Основное окно админки -->
 <div class="admin-modal" id="adminModal">
   <div class="admin-content">
     <button class="admin-close" id="adminClose">&times;</button>
-    <div class="admin-title">Ð£Ð¿ÑÐ°Ð²Ð»ÐµÐ½Ð¸Ðµ ÑÐµÑÐ²ÐµÑÐ°Ð¼Ð¸</div>
+    <div class="admin-title">Управление серверами</div>
     
     <div class="admin-form" id="adminForm">
       <input type="hidden" id="editId" value="">
-      <label>ID ÑÐµÑÐ²ÐµÑÐ° <input type="text" id="formId" placeholder="MR 36"></label>
-      <label>ÐÐµÐ½Ñ Ð²Ð°Ð¹Ð¿Ð°
+      <label>ID сервера <input type="text" id="formId" placeholder="MR 36"></label>
+      <label>День вайпа
         <select id="formDay">
-          <option value="mon">ÐÐ½</option><option value="tue">ÐÑ</option><option value="wed">Ð¡Ñ</option>
-          <option value="thu">Ð§Ñ</option><option value="fri">ÐÑ</option><option value="sat">Ð¡Ð±</option>
-          <option value="sun">ÐÑ</option><option value="month">1-Ð¹ Ð§Ñ</option>
+          <option value="mon">Пн</option><option value="tue">Вт</option><option value="wed">Ср</option>
+          <option value="thu">Чт</option><option value="fri">Пт</option><option value="sat">Сб</option>
+          <option value="sun">Вс</option><option value="month">1-й Чт</option>
         </select>
       </label>
-      <label>ÐÐ¾Ð¼Ð°Ð½Ð´Ð°
+      <label>Команда
         <select id="formTeam">
           <option value="solo">Solo</option><option value="duo">Duo</option><option value="trio">Trio</option><option value="nolimit">No limit</option>
         </select>
       </label>
-      <label>Ð¢Ð¸Ð¿
+      <label>Тип
         <select id="formType">
           <option value="vanilla">Vanilla</option><option value="modded">Modded</option><option value="classic">Classic</option>
         </select>
       </label>
-      <label>ÐÐ°ÑÑÐ¾Ð¼Ð½ÑÐ¹ ÑÐµÐ¶Ð¸Ð¼ (Ð½ÐµÐ¾Ð±ÑÐ·Ð°ÑÐµÐ»ÑÐ½Ð¾) <input type="text" id="formCustomMode" placeholder="ÐÐ²ÑÐ¾Ð³ÐµÐ½ÐµÑÐ°ÑÐ¸Ñ"></label>
+      <label>Кастомный режим (необязательно) <input type="text" id="formCustomMode" placeholder="Автогенерация"></label>
       <label>IP <input type="text" id="formIp" placeholder="1.2.3.4"></label>
-      <label>ÐÐ¾ÑÑ <input type="text" id="formPort" placeholder="10000"></label>
-      <label>ÐÑÐ¸Ð¼ÐµÑÐ°Ð½Ð¸Ðµ <input type="text" id="formNote" placeholder="ÐÐ¾Ð¿. Ð¸Ð½ÑÐ¾"></label>
-      <label>ÐÑÐ¾Ð±ÑÐ¹ ÐºÐ»ÑÑ (ÐÐ)
+      <label>Порт <input type="text" id="formPort" placeholder="10000"></label>
+      <label>Примечание <input type="text" id="formNote" placeholder="Доп. инфо"></label>
+      <label>Особый ключ (ДВ)
         <select id="formWipeKey">
-          <option value="">ÐÐµÑ</option><option value="fri_far_east">ÐÐ°Ð»ÑÐ½ÐµÐ²Ð¾ÑÑÐ¾ÑÐ½ÑÐ¹ (10:00 ÐÐ¡Ð)</option>
+          <option value="">Нет</option><option value="fri_far_east">Дальневосточный (10:00 МСК)</option>
         </select>
       </label>
       <div style="grid-column: 1 / -1;" class="admin-actions">
-        <button class="btn-save" id="btnSaveServer">Ð¡Ð¾ÑÑÐ°Ð½Ð¸ÑÑ ÑÐµÑÐ²ÐµÑ</button>
-        <button class="btn-cancel" id="btnClearForm" style="display:none">ÐÑÐ¼ÐµÐ½Ð¸ÑÑ</button>
+        <button class="btn-save" id="btnSaveServer">Сохранить сервер</button>
+        <button class="btn-cancel" id="btnClearForm" style="display:none">Отменить</button>
       </div>
     </div>
 
     <div class="admin-list" id="adminList"></div>
 
-    <button class="btn-cancel" id="btnResetDefault" style="width:100%;margin-top:10px;color:var(--danger);border-color:var(--danger);">Ð¡Ð±ÑÐ¾ÑÐ¸ÑÑ Ðº Ð·Ð°Ð²Ð¾Ð´ÑÐºÐ¸Ð¼ Ð½Ð°ÑÑÑÐ¾Ð¹ÐºÐ°Ð¼</button>
+    <button class="btn-cancel" id="btnResetDefault" style="width:100%;margin-top:10px;color:var(--danger);border-color:var(--danger);">Сбросить к заводским настройкам</button>
 
-    <!-- ÐÐ»Ð¾Ðº Ð¿ÑÐ±Ð»Ð¸ÐºÐ°ÑÐ¸Ð¸ Ð½Ð° GitHub -->
+    <!-- Блок публикации на GitHub -->
     <div class="publish-box">
-      <h3>ÐÑÐ±Ð»Ð¸ÐºÐ°ÑÐ¸Ñ Ð½Ð° GitHub</h3>
+      <h3>Публикация на GitHub</h3>
       <div class="hint">
-        ÐÐ´Ð¸Ð½ ÑÐ°Ð· ÑÐ¾Ð·Ð´Ð°Ð¹ÑÐµ <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Fine-grained token</a> Ñ Ð¿ÑÐ°Ð²Ð¾Ð¼ <b>Contents: Read and write</b> Ð´Ð»Ñ ÑÑÐ¾Ð³Ð¾ ÑÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ñ. Ð¢Ð¾ÐºÐµÐ½ ÑÑÐ°Ð½Ð¸ÑÑÑ ÑÐ¾Ð»ÑÐºÐ¾ Ð² Ð¿Ð°Ð¼ÑÑÐ¸ Ð²ÐºÐ»Ð°Ð´ÐºÐ¸ Ð¸ ÑÑÐ¸ÑÐ°ÐµÑÑÑ Ð¿ÑÐ¸ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ð¸ ÑÑÑÐ°Ð½Ð¸ÑÑ.
+        Один раз создайте <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Fine-grained token</a> с правом <b>Contents: Read and write</b> для этого репозитория. Токен хранится только в памяти вкладки и стирается при обновлении страницы.
       </div>
       <div class="publish-row">
-        <label>ÐÐ»Ð°Ð´ÐµÐ»ÐµÑ / Ð ÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ð¹
+        <label>Владелец / Репозиторий
           <input type="text" id="ghRepo" placeholder="username/rust-connect">
         </label>
-        <label>ÐÐµÑÐºÐ°
+        <label>Ветка
           <input type="text" id="ghBranch" placeholder="main" value="main">
         </label>
       </div>
       <div class="publish-row" style="grid-template-columns:1fr;">
-        <label>GitHub Token (Ð½Ðµ ÑÐ¾ÑÑÐ°Ð½ÑÐµÑÑÑ)
+        <label>GitHub Token (не сохраняется)
           <input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off">
         </label>
       </div>
-      <button class="btn-publish" id="btnPublish">ÐÐ¿ÑÐ±Ð»Ð¸ÐºÐ¾Ð²Ð°ÑÑ Ð½Ð° GitHub</button>
+      <button class="btn-publish" id="btnPublish">Опубликовать на GitHub</button>
+      <button class="btn-download" id="btnDownload">Скачать index.html</button>
       <div class="publish-status" id="publishStatus"></div>
     </div>
   </div>
 </div>
 
 <script>
-// Ð¡ÐÐÐ¡ÐÐ ÐÐÐÐ¬ÐÐÐÐÐ¢ÐÐÐÐ ÐÐÐÐÐÐÐ
+// СПИСОК ПОЛЬЗОВАТЕЛЕЙ АДМИНКИ
 const ADMIN_USERS = {
   "lekaggw": "qwerty123",
   "rent": "123"
 };
 
 const WIPE_SCHEDULE = {
-  mon:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ Ð¿Ð¾Ð½ÐµÐ´ÐµÐ»ÑÐ½Ð¸ÐºÐ°Ð¼", next: "2026-11-09T14:00:00+03:00", kind: "ÐÐ¾Ð»Ð½ÑÐ¹ Ð²Ð°Ð¹Ð¿ (Ñ ÑÐµÑÑÐµÐ¶Ð°Ð¼Ð¸)" },
-  tue:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ Ð²ÑÐ¾ÑÐ½Ð¸ÐºÐ°Ð¼", next: "2026-11-10T14:00:00+03:00", kind: "ÐÐ¾Ð»Ð½ÑÐ¹ Ð²Ð°Ð¹Ð¿ (Ñ ÑÐµÑÑÐµÐ¶Ð°Ð¼Ð¸)" },
-  wed:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ ÑÑÐµÐ´Ð°Ð¼", next: "2026-11-11T14:00:00+03:00", kind: "ÐÐ»Ð¾Ð±Ð°Ð»ÑÐ½ÑÐ¹ Ð²Ð°Ð¹Ð¿" },
-  thu:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ ÑÐµÑÐ²ÐµÑÐ³Ð°Ð¼", next: "2026-11-12T17:00:00+03:00", kind: "ÐÐ°Ð¹Ð¿ ÐºÐ°ÑÑÑ (Ð±ÐµÐ· ÑÐµÑÑÐµÐ¶ÐµÐ¹)" },
-  fri:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ Ð¿ÑÑÐ½Ð¸ÑÐ°Ð¼", next: "2026-11-13T14:00:00+03:00", kind: "ÐÐ°Ð¹Ð¿ ÐºÐ°ÑÑÑ (Ð±ÐµÐ· ÑÐµÑÑÐµÐ¶ÐµÐ¹)" },
-  sat:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ ÑÑÐ±Ð±Ð¾ÑÐ°Ð¼", next: "2026-11-07T14:00:00+03:00", kind: "ÐÐ¾Ð»Ð½ÑÐ¹ Ð²Ð°Ð¹Ð¿ (Ñ ÑÐµÑÑÐµÐ¶Ð°Ð¼Ð¸)" },
-  sun:   { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ Ð²Ð¾ÑÐºÑÐµÑÐµÐ½ÑÑÐ¼", next: "2026-11-08T14:00:00+03:00", kind: "ÐÐ¾Ð»Ð½ÑÐ¹ Ð²Ð°Ð¹Ð¿ (Ñ ÑÐµÑÑÐµÐ¶Ð°Ð¼Ð¸)" },
-  month: { title: "ÐÐ°Ð¹Ð¿ Ð² Ð¿ÐµÑÐ²ÑÐ¹ ÑÐµÑÐ²ÐµÑÐ³ Ð¼ÐµÑÑÑÐ°", next: "2026-12-03T14:00:00+03:00", kind: "ÐÐ»Ð¾Ð±Ð°Ð»ÑÐ½ÑÐ¹ Ð²Ð°Ð¹Ð¿ (1-Ð¹ ÑÐµÑÐ²ÐµÑÐ³)" },
+  mon:   { title: "Вайп по понедельникам", next: "2026-11-09T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  tue:   { title: "Вайп по вторникам", next: "2026-11-10T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  wed:   { title: "Вайп по средам", next: "2026-11-11T14:00:00+03:00", kind: "Глобальный вайп" },
+  thu:   { title: "Вайп по четвергам", next: "2026-11-12T17:00:00+03:00", kind: "Вайп карты (без чертежей)" },
+  fri:   { title: "Вайп по пятницам", next: "2026-11-13T14:00:00+03:00", kind: "Вайп карты (без чертежей)" },
+  sat:   { title: "Вайп по субботам", next: "2026-11-07T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  sun:   { title: "Вайп по воскресеньям", next: "2026-11-08T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  month: { title: "Вайп в первый четверг месяца", next: "2026-12-03T14:00:00+03:00", kind: "Глобальный вайп (1-й четверг)" },
 };
 
 const WIPE_SCHEDULE_FAR_EAST = {
-  fri: { title: "ÐÐ°Ð¹Ð¿ Ð¿Ð¾ Ð¿ÑÑÐ½Ð¸ÑÐ°Ð¼ (ÐÐ)", next: "2026-11-13T10:00:00+03:00", kind: "ÐÐ°Ð¹Ð¿ ÐºÐ°ÑÑÑ (Ð±ÐµÐ· ÑÐµÑÑÐµÐ¶ÐµÐ¹)" },
+  fri: { title: "Вайп по пятницам (ДВ)", next: "2026-11-13T10:00:00+03:00", kind: "Вайп карты (без чертежей)" },
 };
 
-const WIPE_LABELS = { mon: "ÐÐ½", tue: "ÐÑ", wed: "Ð¡Ñ", thu: "Ð§Ñ", fri: "ÐÑ", sat: "Ð¡Ð±", sun: "ÐÑ", month: "1-Ð¹ Ð§Ñ" };
+const WIPE_LABELS = { mon: "Пн", tue: "Вт", wed: "Ср", thu: "Чт", fri: "Пт", sat: "Сб", sun: "Вс", month: "1-й Чт" };
 
 const DEFAULT_SERVERS = [
-  {
-    "id": "MR 1",
-    "day": "fri",
-    "mode": "Modded, Solo",
-    "team": "solo",
-    "type": "modded",
-    "ip": "185.207.214.25",
-    "port": "10000"
-  },
-  {
-    "id": "MR 2",
-    "day": "mon",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.57",
-    "port": "10000"
-  },
-  {
-    "id": "MR 3",
-    "day": "fri",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "80.242.59.46",
-    "port": "20000"
-  },
-  {
-    "id": "MR 4",
-    "day": "fri",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.24",
-    "port": "10000"
-  },
-  {
-    "id": "MR 5",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.24",
-    "port": "20000"
-  },
-  {
-    "id": "MR 6",
-    "day": "mon",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.25",
-    "port": "20000"
-  },
-  {
-    "id": "MR 7",
-    "day": "fri",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.22",
-    "port": "10000"
-  },
-  {
-    "id": "MR 8",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.22",
-    "port": "20000"
-  },
-  {
-    "id": "MR 9",
-    "day": "mon",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.23",
-    "port": "10000"
-  },
-  {
-    "id": "MR 10",
-    "day": "mon",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.23",
-    "port": "20000"
-  },
-  {
-    "id": "MR 11",
-    "day": "mon",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.134",
-    "port": "20000"
-  },
-  {
-    "id": "MR 12",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.21",
-    "port": "10000"
-  },
-  {
-    "id": "MR 13",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.134",
-    "port": "10000"
-  },
-  {
-    "id": "MR 14",
-    "day": "fri",
-    "mode": "Modded, No limit",
-    "team": "nolimit",
-    "type": "modded",
-    "ip": "80.242.59.71",
-    "port": "10000"
-  },
-  {
-    "id": "MR 15",
-    "day": "mon",
-    "mode": "Modded, No limit",
-    "team": "nolimit",
-    "type": "modded",
-    "ip": "185.207.214.27",
-    "port": "20000"
-  },
-  {
-    "id": "MR 16",
-    "day": "mon",
-    "mode": "Modded, Solo",
-    "team": "solo",
-    "type": "modded",
-    "ip": "185.189.255.130",
-    "port": "20000"
-  },
-  {
-    "id": "MR 17",
-    "day": "mon",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.28",
-    "port": "20000"
-  },
-  {
-    "id": "MR 18",
-    "day": "wed",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "80.242.59.21",
-    "port": "10000",
-    "note": "На глобал вайп в четверг"
-  },
-  {
-    "id": "MR 19",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.27",
-    "port": "10000"
-  },
-  {
-    "id": "MR 20",
-    "day": "mon",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.118",
-    "port": "20000"
-  },
-  {
-    "id": "MR 21",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "152.89.199.34",
-    "port": "10000",
-    "note": "Дальневосточный · Вайп в 10:00 МСК",
-    "wipeKey": "fri_far_east"
-  },
-  {
-    "id": "MR 22",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.189.255.130",
-    "port": "10000",
-    "note": "Раз в 2 недели"
-  },
-  {
-    "id": "MR 23",
-    "day": "fri",
-    "mode": "Vanilla 2x, Trio",
-    "team": "trio",
-    "type": "vanilla",
-    "ip": "185.207.214.21",
-    "port": "20000"
-  },
-  {
-    "id": "MR 24",
-    "day": "mon",
-    "mode": "Vanilla 2x, Trio",
-    "team": "trio",
-    "type": "vanilla",
-    "ip": "185.207.214.221",
-    "port": "10000"
-  },
-  {
-    "id": "MR 25",
-    "day": "thu",
-    "mode": "Modded 2x, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.229",
-    "port": "20000",
-    "note": "Вайп в 14:00 МСК"
-  },
-  {
-    "id": "MR 26",
-    "day": "fri",
-    "mode": "Vanilla 2x, Duo",
-    "team": "duo",
-    "type": "vanilla",
-    "ip": "185.207.214.221",
-    "port": "20000"
-  },
-  {
-    "id": "MR 27",
-    "day": "month",
-    "mode": "Vanilla 2x Monthly, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "80.242.59.227",
-    "port": "10000"
-  },
-  {
-    "id": "MR 28",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "152.89.199.55",
-    "port": "10000",
-    "note": "Дальневосточный · Вайп в 10:00 МСК",
-    "wipeKey": "fri_far_east"
-  },
-  {
-    "id": "MR 29",
-    "day": "wed",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.189.255.188",
-    "port": "10000",
-    "note": "На глобал ждёт своего вайпа в среду"
-  },
-  {
-    "id": "MR 30",
-    "day": "sat",
-    "mode": "Modded 2x, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.57",
-    "port": "20000"
-  },
-  {
-    "id": "MR 31",
-    "day": "sun",
-    "mode": "Modded 2x, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.46",
-    "port": "10000"
-  },
-  {
-    "id": "MR 32",
-    "day": "tue",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.229",
-    "port": "10000"
-  },
-  {
-    "id": "MR 33",
-    "day": "wed",
-    "mode": "Modded, NoLimit",
-    "team": "nolimit",
-    "type": "modded",
-    "ip": "80.242.59.231",
-    "port": "10000"
-  },
-  {
-    "id": "MR 34",
-    "day": "wed",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "80.242.59.232",
-    "port": "10000"
-  },
-  {
-    "id": "MR 35",
-    "day": "sun",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.189.255.188",
-    "port": "20000"
-  }
+  { id: "MR 1",  day: "fri", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.207.214.25",  port: "10000" },
+  { id: "MR 2",  day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "10000" },
+  { id: "MR 3",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.46",    port: "20000" },
+  { id: "MR 4",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.24",  port: "10000" },
+  { id: "MR 5",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.24",  port: "20000" },
+  { id: "MR 6",  day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.25",  port: "20000" },
+  { id: "MR 7",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.22",  port: "10000" },
+  { id: "MR 8",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.22",  port: "20000" },
+  { id: "MR 9",  day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.23",  port: "10000" },
+  { id: "MR 10", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.23",  port: "20000" },
+  { id: "MR 11", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.134", port: "20000" },
+  { id: "MR 12", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.21",  port: "10000" },
+  { id: "MR 13", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.134", port: "10000" },
+  { id: "MR 14", day: "fri", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "80.242.59.71",    port: "10000" },
+  { id: "MR 15", day: "mon", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "185.207.214.27",  port: "20000" },
+  { id: "MR 16", day: "mon", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.189.255.130", port: "20000" },
+  { id: "MR 17", day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.28",  port: "20000" },
+  { id: "MR 18", day: "wed", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.21",    port: "10000", note: "На глобал вайп в четверг" },
+  { id: "MR 19", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.27",  port: "10000" },
+  { id: "MR 20", day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.118", port: "20000" },
+  { id: "MR 21", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "152.89.199.34",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
+  { id: "MR 22", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.130", port: "10000", note: "Раз в 2 недели" },
+  { id: "MR 23", day: "fri", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.21",  port: "20000" },
+  { id: "MR 24", day: "mon", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.221", port: "10000" },
+  { id: "MR 25", day: "thu", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "20000", note: "Вайп в 14:00 МСК" },
+  { id: "MR 26", day: "fri", mode: "Vanilla 2x, Duo",      team: "duo",     type: "vanilla", ip: "185.207.214.221", port: "20000" },
+  { id: "MR 27", day: "month", mode: "Vanilla 2x Monthly, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.227", port: "10000" },
+  { id: "MR 28", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "152.89.199.55",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
+  { id: "MR 29", day: "wed", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.189.255.188", port: "10000", note: "На глобал ждёт своего вайпа в среду" },
+  { id: "MR 30", day: "sat", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "20000" },
+  { id: "MR 31", day: "sun", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.46",    port: "10000" },
+  { id: "MR 32", day: "tue", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "10000" },
+  { id: "MR 33", day: "wed", mode: "Modded, NoLimit",      team: "nolimit", type: "modded",  ip: "80.242.59.231",   port: "10000" },
+  { id: "MR 34", day: "wed", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.232",   port: "10000" },
+  { id: "MR 35", day: "sun", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.188", port: "20000" },
+  { id: "MR Long", day: "month", mode: "Classic, No limit", team: "nolimit", type: "classic", ip: "80.242.59.250", port: "10000" },
+  { id: "MR Main", day: "thu", mode: "Classic, No limit",   team: "nolimit", type: "classic", ip: "185.207.214.136", port: "10000" }
 ];
 
 let ALL_SERVERS = [];
 const STORAGE_KEY = 'magicrust_servers';
 
-// Ð¢Ð¾ÐºÐµÐ½ GitHub ÑÑÐ°Ð½Ð¸ÑÑÑ Ð¢ÐÐÐ¬ÐÐ Ð² Ð¿ÐµÑÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹ (Ð² Ð¿Ð°Ð¼ÑÑÐ¸), Ð½Ð¸Ð³Ð´Ðµ Ð½Ðµ ÑÐ¾ÑÑÐ°Ð½ÑÐµÑÑÑ
+// Токен GitHub хранится ТОЛЬКО в переменной (в памяти), нигде не сохраняется
 let ghTokenMemory = "";
 
 function loadServers() {
@@ -660,7 +381,7 @@ function connect(server) {
   try {
     const address = server.ip + ":" + server.port;
     window.location.href = "steam://run/252490//+connect%20" + encodeURIComponent(address);
-    showToast("ÐÐ°Ð¿ÑÑÐºÐ°Ñ Rust Ð¸ Ð¿Ð¾Ð´ÐºÐ»ÑÑÐ°ÑÑÑ Ðº <b>" + server.id + "</b>");
+    showToast("Запускаю Rust и подключаюсь к <b>" + server.id + "</b>");
   } catch(e) {}
 }
 function copyCommand(server, btn) {
@@ -670,8 +391,8 @@ function copyCommand(server, btn) {
     document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
     btn.classList.add("copied"); btn.innerHTML = CHECK_ICON;
     clearTimeout(btn._t); btn._t = setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = COPY_ICON; }, 2000);
-    showToast("ÐÐ¾Ð¼Ð°Ð½Ð´Ð° ÑÐºÐ¾Ð¿Ð¸ÑÐ¾Ð²Ð°Ð½Ð°:<br><code>" + cmd + "</code>");
-  } catch(e) { showToast("ÐÐµ ÑÐ´Ð°Ð»Ð¾ÑÑ ÑÐºÐ¾Ð¿Ð¸ÑÐ¾Ð²Ð°ÑÑ."); }
+    showToast("Команда скопирована:<br><code>" + cmd + "</code>");
+  } catch(e) { showToast("Не удалось скопировать."); }
 }
 function buildChips(container, labels, stateKey, extraClass) {
   container.innerHTML = "";
@@ -713,14 +434,14 @@ function firstThursday(year, month, hour, minute) {
   d.setDate(1 + ((4 - d.getDay() + 7) % 7)); return d;
 }
 function formatCountdown(ms) {
-  if (ms <= 0) return { text: "Ð¸Ð´ÑÑ", cls: "today" };
+  if (ms <= 0) return { text: "идёт", cls: "today" };
   const totalMin = Math.floor(ms / 60000), days = Math.floor(totalMin / (60 * 24)), hours = Math.floor((totalMin % (60 * 24)) / 60), mins = totalMin % 60;
-  const parts = []; if (days > 0) parts.push(days + " Ð´"); if (days > 0 || hours > 0) parts.push(hours + " Ñ"); parts.push(mins + " Ð¼Ð¸Ð½");
+  const parts = []; if (days > 0) parts.push(days + " д"); if (days > 0 || hours > 0) parts.push(hours + " ч"); parts.push(mins + " мин");
   return { text: parts.join(" "), cls: days === 0 ? "soon" : "" };
 }
 function formatDate(d) {
   const dd = String(d.getDate()).padStart(2, "0"), mm = String(d.getMonth() + 1).padStart(2, "0"), yyyy = d.getFullYear(), hh = String(d.getHours()).padStart(2, "0"), mi = String(d.getMinutes()).padStart(2, "0");
-  return `${dd}.${mm}.${yyyy} ${hh}:${mi} ÐÐ¡Ð`;
+  return `${dd}.${mm}.${yyyy} ${hh}:${mi} МСК`;
 }
 
 function renderServer(s) {
@@ -733,14 +454,14 @@ function renderServer(s) {
     if (wipe) {
       const cd = formatCountdown(wipe.date - new Date());
       const block = document.createElement("div"); block.className = "wipe-block";
-      block.innerHTML = `<span class="wipe-label">ÐÐ°Ð¹Ð¿ ÑÐµÑÐµÐ·:</span><span class="wipe-timer ${cd.cls}" data-wipe-ts="${wipe.date.getTime()}">${cd.text}</span><span class="wipe-kind"><b>${wipe.kind}</b> Â· ${formatDate(wipe.date)}</span>`;
+      block.innerHTML = `<span class="wipe-label">Вайп через:</span><span class="wipe-timer ${cd.cls}" data-wipe-ts="${wipe.date.getTime()}">${cd.text}</span><span class="wipe-kind"><b>${wipe.kind}</b> · ${formatDate(wipe.date)}</span>`;
       info.appendChild(block);
     }
   } catch (e) {}
-  if (s.note) { const note = document.createElement("div"); note.className = "note"; note.textContent = "â  " + s.note; info.appendChild(note); }
+  if (s.note) { const note = document.createElement("div"); note.className = "note"; note.textContent = "⚠ " + s.note; info.appendChild(note); }
   const actions = document.createElement("div"); actions.className = "actions";
   const copyBtn = document.createElement("button"); copyBtn.className = "copy-btn"; copyBtn.innerHTML = COPY_ICON; copyBtn.addEventListener("click", () => copyCommand(s, copyBtn));
-  const btn = document.createElement("button"); btn.className = "btn"; btn.textContent = "ÐÐ¾Ð´ÐºÐ»ÑÑÐ¸ÑÑÑÑ"; btn.addEventListener("click", () => connect(s));
+  const btn = document.createElement("button"); btn.className = "btn"; btn.textContent = "Подключиться"; btn.addEventListener("click", () => connect(s));
   actions.appendChild(copyBtn); actions.appendChild(btn); row.appendChild(info); row.appendChild(actions); return row;
 }
 
@@ -748,20 +469,20 @@ function render() {
   try {
     menuEl.innerHTML = ""; const hasWipeFilter = state.wipe.size > 0;
     const filtered = sortServers(ALL_SERVERS.filter(matches));
-    if (filtered.length === 0) { menuEl.innerHTML = '<div class="empty">ÐÐµÑ ÑÐµÑÐ²ÐµÑÐ¾Ð² Ð¿Ð¾Ð´ Ð²ÑÐ±ÑÐ°Ð½Ð½ÑÐµ ÑÐ¸Ð»ÑÑÑÑ. ÐÐ¾Ð¿ÑÐ¾Ð±ÑÐ¹ ÑÐ±ÑÐ¾ÑÐ¸ÑÑ.</div>'; return; }
+    if (filtered.length === 0) { menuEl.innerHTML = '<div class="empty">Нет серверов под выбранные фильтры. Попробуй сбросить.</div>'; return; }
     if (hasWipeFilter) {
       const groups = {};
       filtered.forEach(s => { if (!groups[s.day]) groups[s.day] = []; groups[s.day].push(s); });
       ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "month"].forEach(dayKey => {
         if (!groups[dayKey] || groups[dayKey].length === 0) return;
         const dayEl = document.createElement("section"); dayEl.className = "day";
-        const title = document.createElement("div"); title.className = "day-title"; title.textContent = (WIPE_SCHEDULE[dayKey] ? WIPE_SCHEDULE[dayKey].title : dayKey) + "  Â·  " + groups[dayKey].length; dayEl.appendChild(title);
+        const title = document.createElement("div"); title.className = "day-title"; title.textContent = (WIPE_SCHEDULE[dayKey] ? WIPE_SCHEDULE[dayKey].title : dayKey) + "  ·  " + groups[dayKey].length; dayEl.appendChild(title);
         const list = document.createElement("div"); list.className = "servers"; groups[dayKey].forEach(s => list.appendChild(renderServer(s))); dayEl.appendChild(list); menuEl.appendChild(dayEl);
       });
       return;
     }
     const list = document.createElement("div"); list.className = "servers"; filtered.forEach(s => list.appendChild(renderServer(s))); menuEl.appendChild(list);
-  } catch(e) { menuEl.innerHTML = '<div class="empty" style="color:#e05a2b">ÐÑÐ¸Ð±ÐºÐ° Ð¿ÑÐ¸ Ð¾ÑÐ¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ð¸.</div>'; }
+  } catch(e) { menuEl.innerHTML = '<div class="empty" style="color:#e05a2b">Ошибка при отображении.</div>'; }
 }
 
 function tickTimers() {
@@ -772,7 +493,7 @@ function tickTimers() {
 }
 setInterval(tickTimers, 30000);
 
-/* --- ÐÐÐÐÐÐ ÐÐÐÐÐÐÐ --- */
+/* --- ЛОГИКА АДМИНКИ --- */
 const adminModal = document.getElementById("adminModal");
 const authWidget = document.getElementById("authWidget");
 const adminList = document.getElementById("adminList");
@@ -833,11 +554,11 @@ function closeAdmin() { adminModal.classList.remove("open"); }
 
 function renderAdminList() {
   adminList.innerHTML = "";
-  if (ALL_SERVERS.length === 0) { adminList.innerHTML = '<div class="empty">Ð¡Ð¿Ð¸ÑÐ¾Ðº Ð¿ÑÑÑ.</div>'; return; }
+  if (ALL_SERVERS.length === 0) { adminList.innerHTML = '<div class="empty">Список пуст.</div>'; return; }
   ALL_SERVERS.slice().sort((a,b) => serverNumber(a.id) - serverNumber(b.id)).forEach((s) => {
     const item = document.createElement("div"); item.className = "admin-item";
-    item.innerHTML = `<div class="admin-item-info"><b>${s.id}</b> â ${s.mode} (${s.ip}:${s.port}) <span style="color:var(--muted);font-size:0.8rem">[${s.day}]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Ð ÐµÐ´Ð°ÐºÑÐ¸ÑÐ¾Ð²Ð°ÑÑ">â</button><button class="delete" title="Ð£Ð´Ð°Ð»Ð¸ÑÑ">ð</button></div>`;
+    item.innerHTML = `<div class="admin-item-info"><b>${s.id}</b> — ${s.mode} (${s.ip}:${s.port}) <span style="color:var(--muted);font-size:0.8rem">[${s.day}]</span></div>
+      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div>`;
     
     item.querySelector(".edit").addEventListener("click", () => {
       editIdInput.value = s.id; formId.value = s.id; formDay.value = s.day; 
@@ -848,7 +569,7 @@ function renderAdminList() {
       document.querySelector(".admin-form").scrollIntoView({ behavior: 'smooth' });
     });
     item.querySelector(".delete").addEventListener("click", () => {
-      if (confirm("Ð£Ð´Ð°Ð»Ð¸ÑÑ ÑÐµÑÐ²ÐµÑ " + s.id + "?")) {
+      if (confirm("Удалить сервер " + s.id + "?")) {
         ALL_SERVERS = ALL_SERVERS.filter(x => x.id !== s.id); saveServers(); renderAdminList(); render();
       }
     });
@@ -864,7 +585,7 @@ function clearForm() {
 
 document.getElementById("btnSaveServer").addEventListener("click", () => {
   const id = formId.value.trim(), ip = formIp.value.trim(), port = formPort.value.trim();
-  if (!id || !ip || !port) return alert("ÐÐ°Ð¿Ð¾Ð»Ð½Ð¸ÑÐµ ID, IP Ð¸ ÐÐ¾ÑÑ.");
+  if (!id || !ip || !port) return alert("Заполните ID, IP и Порт.");
   
   const teamLabel = TEAM_LABELS[formTeam.value] || formTeam.value;
   const typeLabel = TYPE_LABELS[formType.value] || formType.value;
@@ -877,40 +598,74 @@ document.getElementById("btnSaveServer").addEventListener("click", () => {
   if (editId) {
     const index = ALL_SERVERS.findIndex(x => x.id === editId); if (index !== -1) ALL_SERVERS[index] = serverData;
   } else {
-    if (ALL_SERVERS.some(x => x.id === id)) return alert("Ð¡ÐµÑÐ²ÐµÑ Ñ ÑÐ°ÐºÐ¸Ð¼ ID ÑÐ¶Ðµ ÑÑÑÐµÑÑÐ²ÑÐµÑ!");
+    if (ALL_SERVERS.some(x => x.id === id)) return alert("Сервер с таким ID уже существует!");
     ALL_SERVERS.push(serverData);
   }
-  saveServers(); clearForm(); renderAdminList(); render(); showToast("Ð¡ÐµÑÐ²ÐµÑ ÑÐ¾ÑÑÐ°Ð½ÐµÐ½!");
+  saveServers(); clearForm(); renderAdminList(); render(); showToast("Сервер сохранен!");
 });
 
 document.getElementById("btnClearForm").addEventListener("click", clearForm);
 
 document.getElementById("btnResetDefault").addEventListener("click", () => {
-  if (confirm("ÐÑ ÑÐ²ÐµÑÐµÐ½Ñ, ÑÑÐ¾ ÑÐ¾ÑÐ¸ÑÐµ ÑÐ±ÑÐ¾ÑÐ¸ÑÑ ÐÐ¡Ð Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ð¸ Ð²ÐµÑÐ½ÑÑÑ Ð¸Ð·Ð½Ð°ÑÐ°Ð»ÑÐ½ÑÐ¹ ÑÐ¿Ð¸ÑÐ¾Ðº ÑÐµÑÐ²ÐµÑÐ¾Ð²?")) {
+  if (confirm("Вы уверены, что хотите сбросить ВСЕ изменения и вернуть изначальный список серверов?")) {
     localStorage.removeItem(STORAGE_KEY);
     ALL_SERVERS = JSON.parse(JSON.stringify(DEFAULT_SERVERS));
     saveServers(); clearForm(); renderAdminList(); render();
-    showToast("Ð¡Ð¿Ð¸ÑÐ¾Ðº ÑÐµÑÐ²ÐµÑÐ¾Ð² ÑÐ±ÑÐ¾ÑÐµÐ½ Ðº Ð·Ð°Ð²Ð¾Ð´ÑÐºÐ¸Ð¼ Ð½Ð°ÑÑÑÐ¾Ð¹ÐºÐ°Ð¼.");
+    showToast("Список серверов сброшен к заводским настройкам.");
   }
 });
 
 document.getElementById("adminClose").addEventListener("click", closeAdmin);
 adminModal.addEventListener("click", (e) => { if (e.target === adminModal) closeAdmin(); });
 
-/* --- ÐÐ£ÐÐÐÐÐÐ¦ÐÐ¯ ÐÐ GITHUB --- */
+/* --- ПУБЛИКАЦИЯ И СКАЧИВАНИЕ --- */
 const btnPublish = document.getElementById("btnPublish");
+const btnDownload = document.getElementById("btnDownload");
 const publishStatus = document.getElementById("publishStatus");
 
+// Функция скачивания файла
+btnDownload.addEventListener("click", () => {
+  try {
+    const htmlContent = document.documentElement.outerHTML;
+    // Заменяем содержимое массива DEFAULT_SERVERS на актуальное
+    const startMarker = "const DEFAULT_SERVERS = ";
+    const endMarker = "];";
+    const startIdx = htmlContent.indexOf(startMarker);
+    const endIdx = htmlContent.indexOf(endMarker, startIdx) + endMarker.length;
+    
+    const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
+    const newContent = htmlContent.substring(0, startIdx) + 
+                       startMarker + newServersJson + ";" + 
+                       htmlContent.substring(endIdx);
+
+    const blob = new Blob([newContent], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    publishStatus.textContent = "Файл скачан! Замените им старый на GitHub.";
+    publishStatus.className = "publish-status ok";
+  } catch (err) {
+    publishStatus.textContent = "Ошибка скачивания: " + err.message;
+    publishStatus.className = "publish-status err";
+  }
+});
+
+// Публикация на GitHub
 btnPublish.addEventListener("click", async () => {
   const repo = document.getElementById("ghRepo").value.trim();
   const branch = document.getElementById("ghBranch").value.trim() || "main";
   const tokenInput = document.getElementById("ghToken");
-  // ÐÑÐ»Ð¸ Ð² Ð¿Ð°Ð¼ÑÑÐ¸ ÑÐ¶Ðµ ÐµÑÑÑ ÑÐ¾ÐºÐµÐ½, Ð¸ÑÐ¿Ð¾Ð»ÑÐ·ÑÐµÐ¼ ÐµÐ³Ð¾. ÐÐ½Ð°ÑÐµ Ð±ÐµÑÐµÐ¼ Ð¸Ð· Ð¿Ð¾Ð»Ñ Ð¸ ÑÐ¾ÑÑÐ°Ð½ÑÐµÐ¼ Ð² Ð¿Ð°Ð¼ÑÑÑ.
   let token = ghTokenMemory;
   if (!token) {
     token = tokenInput.value.trim();
     if (!token) {
-      publishStatus.textContent = "ÐÐ²ÐµÐ´Ð¸ÑÐµ GitHub ÑÐ¾ÐºÐµÐ½.";
+      publishStatus.textContent = "Введите GitHub токен.";
       publishStatus.className = "publish-status err";
       return;
     }
@@ -918,66 +673,57 @@ btnPublish.addEventListener("click", async () => {
   }
   
   if (!repo || !repo.includes("/")) {
-    publishStatus.textContent = "Ð£ÐºÐ°Ð¶Ð¸ÑÐµ ÑÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ð¹ Ð² ÑÐ¾ÑÐ¼Ð°ÑÐµ username/repo.";
+    publishStatus.textContent = "Укажите репозиторий в формате username/repo.";
     publishStatus.className = "publish-status err";
     return;
   }
 
   btnPublish.disabled = true;
-  publishStatus.textContent = "ÐÑÐ±Ð»Ð¸ÐºÐ°ÑÐ¸Ñ...";
+  publishStatus.textContent = "Публикация...";
   publishStatus.className = "publish-status";
 
   try {
-    // 1. ÐÐ¾Ð»ÑÑÐ°ÐµÐ¼ SHA ÑÐµÐºÑÑÐµÐ³Ð¾ ÑÐ°Ð¹Ð»Ð° index.html
     const getUrl = `https://api.github.com/repos/${repo}/contents/index.html?ref=${branch}`;
-    const getRes = await fetch(getUrl, {
-      headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" }
-    });
+    const getRes = await fetch(getUrl, { headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" } });
     
-    if (!getRes.ok) {
-      if (getRes.status === 404) throw new Error("Ð¤Ð°Ð¹Ð» index.html Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½ Ð² ÑÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ð¸ (Ð¸Ð»Ð¸ Ð½ÐµÐ²ÐµÑÐ½ÑÐ¹ ÑÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ð¹/Ð²ÐµÑÐºÐ°).");
-      if (getRes.status === 401) throw new Error("ÐÐµÐ²ÐµÑÐ½ÑÐ¹ Ð¸Ð»Ð¸ Ð¿ÑÐ¾ÑÑÐ¾ÑÐµÐ½Ð½ÑÐ¹ ÑÐ¾ÐºÐµÐ½ (401).");
-      if (getRes.status === 403) throw new Error("Ð¢Ð¾ÐºÐµÐ½ Ð½Ðµ Ð¸Ð¼ÐµÐµÑ Ð¿ÑÐ°Ð² Ð½Ð° Ð·Ð°Ð¿Ð¸ÑÑ Ð² ÑÑÐ¾Ñ ÑÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ð¹ (403).");
-      throw new Error("ÐÑÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð»ÑÑÐµÐ½Ð¸Ñ ÑÐ°Ð¹Ð»Ð°: " + getRes.status);
-    }
+    if (!getRes.ok) throw new Error("Ошибка получения файла: " + getRes.status);
     
     const fileData = await getRes.json();
     const currentSha = fileData.sha;
     
-    // 2. Ð¤Ð¾ÑÐ¼Ð¸ÑÑÐµÐ¼ Ð½Ð¾Ð²ÑÐ¹ ÐºÐ¾Ð½ÑÐµÐ½Ñ ÑÐ°Ð¹Ð»Ð° (Ð·Ð°Ð¼ÐµÐ½ÑÐµÐ¼ Ð¼Ð°ÑÑÐ¸Ð² DEFAULT_SERVERS)
-    // ÐÐÐÐÐ: ÑÐ°Ðº ÐºÐ°Ðº Ð¼Ñ Ð½Ðµ ÑÑÐ°Ð½Ð¸Ð¼ Ð²ÐµÑÑ ÐºÐ¾Ð´ ÑÑÑÐ°Ð½Ð¸ÑÑ Ð² JS, Ð¼Ñ Ð´Ð¾Ð»Ð¶Ð½Ñ Ð¿ÑÐ¾ÑÐ¸ÑÐ°ÑÑ ÑÐµÐºÑÑÐ¸Ð¹ ÑÐ°Ð¹Ð»,
-    // Ð½Ð°Ð¹ÑÐ¸ ÑÐ°Ð¼ DEFAULT_SERVERS Ð¸ Ð·Ð°Ð¼ÐµÐ½Ð¸ÑÑ ÐµÐ³Ð¾.
-    const currentContent = atob(fileData.content.replace(/\n/g, ""));
+    // Декодируем Base64 в UTF-8 корректно (через TextDecoder)
+    const base64Content = fileData.content.replace(/\n/g, "");
+    const binaryString = atob(base64Content);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+    const currentContent = new TextDecoder().decode(bytes);
     
     const startMarker = "const DEFAULT_SERVERS = ";
     const endMarker = "];";
     const startIdx = currentContent.indexOf(startMarker);
-    if (startIdx === -1) throw new Error("ÐÐµ ÑÐ´Ð°Ð»Ð¾ÑÑ Ð½Ð°Ð¹ÑÐ¸ DEFAULT_SERVERS Ð² ÑÐ°Ð¹Ð»Ðµ index.html.");
+    if (startIdx === -1) throw new Error("Не удалось найти DEFAULT_SERVERS.");
     
-    // ÐÑÐµÐ¼ ÐºÐ¾Ð½ÐµÑ Ð¼Ð°ÑÑÐ¸Ð²Ð° (Ð¿ÐµÑÐ²Ð¾Ðµ Ð²ÑÐ¾Ð¶Ð´ÐµÐ½Ð¸Ðµ "];" Ð¿Ð¾ÑÐ»Ðµ startIdx)
     let endIdx = currentContent.indexOf(endMarker, startIdx);
-    if (endIdx === -1) throw new Error("ÐÐµ ÑÐ´Ð°Ð»Ð¾ÑÑ Ð½Ð°Ð¹ÑÐ¸ ÐºÐ¾Ð½ÐµÑ Ð¼Ð°ÑÑÐ¸Ð²Ð° DEFAULT_SERVERS.");
+    if (endIdx === -1) throw new Error("Не удалось найти конец массива.");
     endIdx += endMarker.length;
     
     const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
-    const newContent = currentContent.substring(0, startIdx) + 
-                       startMarker + newServersJson + ";" + 
-                       currentContent.substring(endIdx);
+    const newContent = currentContent.substring(0, startIdx) + startMarker + newServersJson + ";" + currentContent.substring(endIdx);
     
-    // 3. ÐÐ¾Ð´Ð¸ÑÑÐµÐ¼ Ð² Base64
-    const newContentBase64 = btoa(unescape(encodeURIComponent(newContent)));
+    // Кодируем обратно в Base64 корректно (через TextEncoder)
+    const newContentBytes = new TextEncoder().encode(newContent);
+    let binary = "";
+    for (let i = 0; i < newContentBytes.byteLength; i++) {
+        binary += String.fromCharCode(newContentBytes[i]);
+    }
+    const newContentBase64 = btoa(binary);
     
-    // 4. ÐÑÐ¿ÑÐ°Ð²Ð»ÑÐµÐ¼ PUT Ð·Ð°Ð¿ÑÐ¾Ñ
     const putUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
     const putRes = await fetch(putUrl, {
       method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
+      headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: "ÐÐ±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ° ÑÐµÑÐ²ÐµÑÐ¾Ð² ÑÐµÑÐµÐ· Ð°Ð´Ð¼Ð¸Ð½ÐºÑ",
+        message: "Обновление списка серверов через админку",
         content: newContentBase64,
         sha: currentSha,
         branch: branch
@@ -986,15 +732,15 @@ btnPublish.addEventListener("click", async () => {
     
     if (!putRes.ok) {
       const errData = await putRes.json();
-      throw new Error("ÐÑÐ¸Ð±ÐºÐ° Ð¿ÑÐ±Ð»Ð¸ÐºÐ°ÑÐ¸Ð¸: " + (errData.message || putRes.status));
+      throw new Error("Ошибка публикации: " + (errData.message || putRes.status));
     }
     
-    publishStatus.textContent = "Ð£ÑÐ¿ÐµÑÐ½Ð¾ Ð¾Ð¿ÑÐ±Ð»Ð¸ÐºÐ¾Ð²Ð°Ð½Ð¾! GitHub Pages Ð¾Ð±Ð½Ð¾Ð²Ð¸ÑÑÑ ÑÐµÑÐµÐ· 1â2 Ð¼Ð¸Ð½ÑÑÑ.";
+    publishStatus.textContent = "Успешно опубликовано! GitHub Pages обновится через 1–2 минуты.";
     publishStatus.className = "publish-status ok";
-    tokenInput.value = ""; // ÐÑÐ¸ÑÐ°ÐµÐ¼ Ð¿Ð¾Ð»Ðµ Ð²Ð¸Ð·ÑÐ°Ð»ÑÐ½Ð¾, ÑÐ¾ÐºÐµÐ½ Ð¾ÑÑÐ°ÐµÑÑÑ Ð² Ð¿Ð°Ð¼ÑÑÐ¸
+    tokenInput.value = ""; 
     
   } catch (err) {
-    publishStatus.textContent = "ÐÑÐ¸Ð±ÐºÐ°: " + err.message;
+    publishStatus.textContent = "Ошибка: " + err.message;
     publishStatus.className = "publish-status err";
   } finally {
     btnPublish.disabled = false;
@@ -1008,7 +754,7 @@ try {
   buildChips(wipeChipsEl, WIPE_LABELS, "wipe", "wipe");
   document.getElementById("resetBtn").addEventListener("click", resetFilters);
   render();
-} catch(e) { console.error("ÐÑÐ¸Ð±ÐºÐ° Ð¸Ð½Ð¸ÑÐ¸Ð°Ð»Ð¸Ð·Ð°ÑÐ¸Ð¸:", e); }
+} catch(e) { console.error("Ошибка инициализации:", e); }
 </script>
 </body>
 </html>
