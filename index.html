@@ -19,6 +19,8 @@
     --copy: #2a3140;
     --copy-hover: #343d4f;
     --ok: #3ba55d;
+    --warn: #c9a227;
+    --soon: #e05a2b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -34,7 +36,6 @@
   header h1 span { color: var(--accent); }
   header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
 
-  /* ---- Панель фильтров ---- */
   .filters {
     background: var(--card);
     border: 1px solid var(--border);
@@ -48,7 +49,7 @@
   }
   .filter-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     flex-wrap: wrap;
     margin-bottom: 10px;
@@ -61,8 +62,9 @@
     color: var(--muted);
     width: 90px;
     flex-shrink: 0;
+    padding-top: 5px;
   }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
   .chip {
     background: var(--chip);
     color: var(--text);
@@ -81,8 +83,8 @@
     color: #fff;
     font-weight: 600;
   }
+  .chip.wipe { font-size: 0.74rem; padding: 4px 9px; }
   .reset {
-    margin-left: auto;
     background: transparent;
     color: var(--muted);
     border: 1px solid var(--border);
@@ -91,10 +93,11 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s;
+    align-self: flex-start;
+    white-space: nowrap;
   }
   .reset:hover { color: var(--text); border-color: #3a4252; }
 
-  /* ---- Список ---- */
   .day { margin-bottom: 22px; }
   .day-title {
     font-size: 0.85rem;
@@ -139,7 +142,30 @@
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     word-break: break-all;
   }
-  .note { color: #c9a227; font-size: 0.78rem; margin-top: 4px; }
+  .note { color: var(--warn); font-size: 0.78rem; margin-top: 4px; }
+
+  .wipe-block {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+  }
+  .wipe-label { color: var(--muted); }
+  .wipe-timer {
+    font-weight: 600;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--text);
+    background: #222732;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .wipe-timer.soon { color: #fff; background: var(--soon); border-color: var(--soon); }
+  .wipe-timer.today { color: #fff; background: var(--ok); border-color: var(--ok); }
+  .wipe-kind { font-size: 0.74rem; color: var(--muted); }
+  .wipe-kind b { color: var(--text); font-weight: 600; }
 
   .actions {
     display: flex;
@@ -148,7 +174,6 @@
     flex-shrink: 0;
   }
 
-  /* Квадратная кнопка-иконка */
   .copy-btn {
     width: 40px;
     height: 40px;
@@ -229,7 +254,7 @@
     .actions { justify-content: space-between; }
     .copy-btn { width: 44px; height: 44px; }
     .btn { flex: 1; height: 44px; }
-    .filter-label { width: 100%; margin-bottom: 2px; }
+    .filter-label { width: 100%; padding-top: 0; margin-bottom: 2px; }
     .filters { position: static; }
   }
 </style>
@@ -249,7 +274,11 @@
     <div class="filter-row">
       <span class="filter-label">Тип</span>
       <div class="chips" id="typeChips"></div>
-      <button class="reset" id="resetBtn">Сбросить всё</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Вайп</span>
+      <div class="chips" id="wipeChips"></div>
+      <button class="reset" id="resetBtn">Сбросить</button>
     </div>
   </div>
 
@@ -259,138 +288,123 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ---------------------------------------------------------------
-// Данные. team: solo | duo | trio | nolimit
-//          type: vanilla | modded | classic
-// ---------------------------------------------------------------
-const DAYS = [
-  {
-    title: "Вайп по понедельникам",
-    servers: [
-      { id: "MR 2",  mode: "Modded, Duo",          team: "duo",      type: "modded",  ip: "80.242.59.57",    port: "10000" },
-      { id: "MR 6",  mode: "Modded, Trio",         team: "trio",     type: "modded",  ip: "185.207.214.25",  port: "20000" },
-      { id: "MR 9",  mode: "Vanilla 2x, No limit", team: "nolimit",  type: "vanilla", ip: "185.207.214.23",  port: "10000" },
-      { id: "MR 10", mode: "Modded, Trio",         team: "trio",     type: "modded",  ip: "185.207.214.23",  port: "20000" },
-      { id: "MR 11", mode: "Modded, Trio",         team: "trio",     type: "modded",  ip: "185.207.214.134", port: "20000" },
-      { id: "MR 15", mode: "Modded, No limit",     team: "nolimit",  type: "modded",  ip: "185.207.214.27",  port: "20000" },
-      { id: "MR 16", mode: "Modded, Solo",         team: "solo",     type: "modded",  ip: "185.189.255.130", port: "20000" },
-      { id: "MR 17", mode: "Modded, Duo",          team: "duo",      type: "modded",  ip: "185.207.214.28",  port: "20000" },
-      { id: "MR 20", mode: "Vanilla 2x, No limit", team: "nolimit",  type: "vanilla", ip: "185.207.214.118", port: "20000" },
-      { id: "MR 24", mode: "Vanilla 2x, Trio",     team: "trio",     type: "vanilla", ip: "185.207.214.221", port: "10000" },
-    ]
-  },
-  {
-    title: "Вайп по вторникам",
-    servers: [
-      { id: "MR 32", mode: "Modded, Duo", team: "duo", type: "modded", ip: "80.242.59.229", port: "10000" },
-    ]
-  },
-  {
-    title: "Вайп по средам",
-    servers: [
-      { id: "MR 18", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.21",    port: "10000", note: "На глобал вайп в четверг" },
-      { id: "MR 29", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.189.255.188", port: "10000", note: "На глобал ждёт своего вайпа в среду" },
-      { id: "MR 33", mode: "Modded, NoLimit",      team: "nolimit", type: "modded",  ip: "80.242.59.231",   port: "10000" },
-      { id: "MR 34", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.232",   port: "10000" },
-    ]
-  },
-  {
-    title: "Вайп по четвергам",
-    servers: [
-      { id: "MR 25",   mode: "Modded 2x, Duo",    team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "20000", note: "Вайп в 14:00 МСК" },
-      { id: "MR Main", mode: "Classic, No limit", team: "nolimit", type: "classic", ip: "185.207.214.136", port: "10000" },
-    ]
-  },
-  {
-    title: "Вайп в первый четверг месяца",
-    servers: [
-      { id: "MR Long", mode: "Classic, No limit",            team: "nolimit", type: "classic", ip: "80.242.59.250", port: "10000" },
-      { id: "MR 27",   mode: "Vanilla 2x Monthly, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.227", port: "10000" },
-    ]
-  },
-  {
-    title: "Вайп по пятницам",
-    servers: [
-      { id: "MR 1",  mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.207.214.25",  port: "10000" },
-      { id: "MR 3",  mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.46",    port: "20000" },
-      { id: "MR 4",  mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.24",  port: "10000" },
-      { id: "MR 5",  mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.24",  port: "20000" },
-      { id: "MR 7",  mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.22",  port: "10000" },
-      { id: "MR 8",  mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.22",  port: "20000" },
-      { id: "MR 12", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.21",  port: "10000" },
-      { id: "MR 13", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.134", port: "10000" },
-      { id: "MR 14", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "80.242.59.71",    port: "10000" },
-      { id: "MR 19", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.27",  port: "10000" },
-      { id: "MR 21", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "152.89.199.34",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК" },
-      { id: "MR 22", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.130", port: "10000", note: "Раз в 2 недели" },
-      { id: "MR 23", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.21",  port: "20000" },
-      { id: "MR 26", mode: "Vanilla 2x, Duo",      team: "duo",     type: "vanilla", ip: "185.207.214.221", port: "20000" },
-      { id: "MR 28", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "152.89.199.55",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК" },
-    ]
-  },
-  {
-    title: "Вайп по субботам",
-    servers: [
-      { id: "MR 30", mode: "Modded 2x, Duo", team: "duo", type: "modded", ip: "80.242.59.57", port: "20000" },
-    ]
-  },
-  {
-    title: "Вайп по воскресеньям",
-    servers: [
-      { id: "MR 31", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.46",    port: "10000" },
-      { id: "MR 35", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.188", port: "20000" },
-    ]
-  },
+const WIPE_SCHEDULE = {
+  mon:   { title: "Вайп по понедельникам",           next: "2026-11-09T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  tue:   { title: "Вайп по вторникам",               next: "2026-11-10T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  wed:   { title: "Вайп по средам",                  next: "2026-11-11T14:00:00+03:00", kind: "Глобальный вайп" },
+  thu:   { title: "Вайп по четвергам",               next: "2026-11-12T17:00:00+03:00", kind: "Вайп карты (без чертежей)" },
+  fri:   { title: "Вайп по пятницам",                next: "2026-11-13T14:00:00+03:00", kind: "Вайп карты (без чертежей)" },
+  sat:   { title: "Вайп по субботам",                next: "2026-11-07T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  sun:   { title: "Вайп по воскресеньям",            next: "2026-11-08T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
+  month: { title: "Вайп в первый четверг месяца",    next: "2026-12-03T14:00:00+03:00", kind: "Глобальный вайп (1-й четверг)" },
+};
+
+const WIPE_SCHEDULE_FAR_EAST = {
+  fri: { title: "Вайп по пятницам (ДВ)", next: "2026-11-13T10:00:00+03:00", kind: "Вайп карты (без чертежей)" },
+};
+
+// Порядок дней изменен: "1-й Чт" (month) перенесен в конец
+const WIPE_LABELS = { mon: "Пн", tue: "Вт", wed: "Ср", thu: "Чт", fri: "Пт", sat: "Сб", sun: "Вс", month: "1-й Чт" };
+
+// Собираем ВСЕ серверы в один плоский массив для удобства фильтрации
+const ALL_SERVERS = [
+  { id: "MR 1",  day: "fri", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.207.214.25",  port: "10000" },
+  { id: "MR 2",  day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "10000" },
+  { id: "MR 3",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.46",    port: "20000" },
+  { id: "MR 4",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.24",  port: "10000" },
+  { id: "MR 5",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.24",  port: "20000" },
+  { id: "MR 6",  day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.25",  port: "20000" },
+  { id: "MR 7",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.22",  port: "10000" },
+  { id: "MR 8",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.22",  port: "20000" },
+  { id: "MR 9",  day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.23",  port: "10000" },
+  { id: "MR 10", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.23",  port: "20000" },
+  { id: "MR 11", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.134", port: "20000" },
+  { id: "MR 12", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.21",  port: "10000" },
+  { id: "MR 13", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.134", port: "10000" },
+  { id: "MR 14", day: "fri", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "80.242.59.71",    port: "10000" },
+  { id: "MR 15", day: "mon", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "185.207.214.27",  port: "20000" },
+  { id: "MR 16", day: "mon", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.189.255.130", port: "20000" },
+  { id: "MR 17", day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.28",  port: "20000" },
+  { id: "MR 18", day: "wed", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.21",    port: "10000", note: "На глобал вайп в четверг" },
+  { id: "MR 19", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.27",  port: "10000" },
+  { id: "MR 20", day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.118", port: "20000" },
+  { id: "MR 21", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "152.89.199.34",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
+  { id: "MR 22", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.130", port: "10000", note: "Раз в 2 недели" },
+  { id: "MR 23", day: "fri", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.21",  port: "20000" },
+  { id: "MR 24", day: "mon", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.221", port: "10000" },
+  { id: "MR 25", day: "thu", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "20000", note: "Вайп в 14:00 МСК" },
+  { id: "MR 26", day: "fri", mode: "Vanilla 2x, Duo",      team: "duo",     type: "vanilla", ip: "185.207.214.221", port: "20000" },
+  { id: "MR 27", day: "month", mode: "Vanilla 2x Monthly, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.227", port: "10000" },
+  { id: "MR 28", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "152.89.199.55",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
+  { id: "MR 29", day: "wed", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.189.255.188", port: "10000", note: "На глобал ждёт своего вайпа в среду" },
+  { id: "MR 30", day: "sat", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "20000" },
+  { id: "MR 31", day: "sun", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.46",    port: "10000" },
+  { id: "MR 32", day: "tue", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "10000" },
+  { id: "MR 33", day: "wed", mode: "Modded, NoLimit",      team: "nolimit", type: "modded",  ip: "80.242.59.231",   port: "10000" },
+  { id: "MR 34", day: "wed", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.232",   port: "10000" },
+  { id: "MR 35", day: "sun", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.188", port: "20000" },
+  { id: "MR Long", day: "month", mode: "Classic, No limit", team: "nolimit", type: "classic", ip: "80.242.59.250", port: "10000" },
+  { id: "MR Main", day: "thu", mode: "Classic, No limit",   team: "nolimit", type: "classic", ip: "185.207.214.136", port: "10000" }
 ];
 
 const TEAM_LABELS = { solo: "Solo", duo: "Duo", trio: "Trio", nolimit: "No limit" };
 const TYPE_LABELS = { vanilla: "Vanilla", modded: "Modded", classic: "Classic" };
 
-const state = { team: new Set(), type: new Set() };
+const state = { team: new Set(), type: new Set(), wipe: new Set() };
 
 const menuEl   = document.getElementById("menu");
 const toastEl  = document.getElementById("toast");
 const teamChipsEl = document.getElementById("teamChips");
 const typeChipsEl = document.getElementById("typeChips");
+const wipeChipsEl = document.getElementById("wipeChips");
 
 const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
 const CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
+function serverNumber(id) {
+  const m = id.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : Infinity;
+}
+
+function sortServers(list) {
+  return list.slice().sort((a, b) => {
+    const na = serverNumber(a.id);
+    const nb = serverNumber(b.id);
+    if (na !== nb) return na - nb;
+    return a.id.localeCompare(b.id);
+  });
+}
+
 function showToast(html) {
-  toastEl.innerHTML = html;
-  toastEl.classList.add("show");
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => toastEl.classList.remove("show"), 4500);
+  try {
+    toastEl.innerHTML = html;
+    toastEl.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toastEl.classList.remove("show"), 4500);
+  } catch(e) {}
 }
 
 function connect(server) {
-  const address = server.ip + ":" + server.port;
-  const steamUrl = "steam://run/252490//+connect%20" + encodeURIComponent(address);
-  window.location.href = steamUrl;
-  showToast("Запускаю Rust и подключаюсь к <b>" + server.id + "</b><br>" +
-            "Если Steam не открылся — разреши браузеру запустить приложение.");
+  try {
+    const address = server.ip + ":" + server.port;
+    const steamUrl = "steam://run/252490//+connect%20" + encodeURIComponent(address);
+    window.location.href = steamUrl;
+    showToast("Запускаю Rust и подключаюсь к <b>" + server.id + "</b><br>Если Steam не открылся — разреши браузеру запустить приложение.");
+  } catch(e) {}
 }
 
-async function copyCommand(server, btn) {
-  const cmd = "client.connect " + server.ip + ":" + server.port;
-  let ok = false;
+function copyCommand(server, btn) {
   try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(cmd);
-      ok = true;
-    } else {
-      const ta = document.createElement("textarea");
-      ta.value = cmd;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-    }
-  } catch (e) { ok = false; }
+    const cmd = "client.connect " + server.ip + ":" + server.port;
+    const ta = document.createElement("textarea");
+    ta.value = cmd;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
 
-  if (ok) {
     btn.classList.add("copied");
     btn.innerHTML = CHECK_ICON;
     clearTimeout(btn._t);
@@ -399,16 +413,16 @@ async function copyCommand(server, btn) {
       btn.innerHTML = COPY_ICON;
     }, 2000);
     showToast("Команда скопирована:<br><code>" + cmd + "</code>");
-  } else {
-    showToast("Не удалось скопировать. Скопируй вручную:<br><code>" + cmd + "</code>");
+  } catch(e) {
+    showToast("Не удалось скопировать.");
   }
 }
 
-function buildChips(container, labels, stateKey) {
+function buildChips(container, labels, stateKey, extraClass) {
   container.innerHTML = "";
   Object.entries(labels).forEach(([key, label]) => {
     const chip = document.createElement("button");
-    chip.className = "chip";
+    chip.className = "chip" + (extraClass ? " " + extraClass : "");
     chip.textContent = label;
     chip.dataset.key = key;
     chip.addEventListener("click", () => {
@@ -424,6 +438,7 @@ function buildChips(container, labels, stateKey) {
 function resetFilters() {
   state.team.clear();
   state.type.clear();
+  state.wipe.clear();
   document.querySelectorAll(".chip.active").forEach(c => c.classList.remove("active"));
   render();
 }
@@ -431,92 +446,204 @@ function resetFilters() {
 function matches(server) {
   const teamOk = state.team.size === 0 || state.team.has(server.team);
   const typeOk = state.type.size === 0 || state.type.has(server.type);
-  return teamOk && typeOk;
+  const wipeOk = state.wipe.size === 0 || state.wipe.has(server.day);
+  return teamOk && typeOk && wipeOk;
+}
+
+function getNextWipe(dayKey, serverWipeKey) {
+  let cfg, actualKey = dayKey;
+  if (serverWipeKey === "fri_far_east") { cfg = WIPE_SCHEDULE_FAR_EAST.fri; actualKey = "fri"; }
+  else { cfg = WIPE_SCHEDULE[dayKey]; }
+  if (!cfg) return null;
+  
+  let next = new Date(cfg.next);
+  const now = new Date();
+
+  if (actualKey === "month") {
+    while (next <= now) {
+      const y = next.getFullYear();
+      const m = next.getMonth() + 1;
+      const targetMonth = m > 11 ? 0 : m;
+      const targetYear = m > 11 ? y + 1 : y;
+      next = firstThursday(targetYear, targetMonth, 14, 0);
+    }
+  } else {
+    while (next <= now) {
+      next = new Date(next.getTime() + 7 * 24 * 60 * 60 * 1000);
+    }
+  }
+  return { date: next, kind: cfg.kind };
+}
+
+function firstThursday(year, month, hour, minute) {
+  const d = new Date(year, month, 1, hour, minute, 0, 0);
+  d.setDate(1 + ((4 - d.getDay() + 7) % 7));
+  return d;
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return { text: "идёт", cls: "today" };
+  const totalMin = Math.floor(ms / 60000);
+  const days = Math.floor(totalMin / (60 * 24));
+  const hours = Math.floor((totalMin % (60 * 24)) / 60);
+  const mins = totalMin % 60;
+
+  const parts = [];
+  if (days > 0) parts.push(days + " д");
+  if (days > 0 || hours > 0) parts.push(hours + " ч");
+  parts.push(mins + " мин");
+
+  let cls = "";
+  if (days === 0) cls = "soon";
+
+  return { text: parts.join(" "), cls };
+}
+
+function formatDate(d) {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}.${mm}.${yyyy} ${hh}:${mi} МСК`;
+}
+
+function renderServer(s) {
+  const row = document.createElement("div");
+  row.className = "server";
+
+  const info = document.createElement("div");
+  info.className = "info";
+
+  const name = document.createElement("div");
+  name.className = "name";
+  name.innerHTML = s.id + ' <span class="tag">' + s.mode + '</span>';
+  info.appendChild(name);
+
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = s.ip + ":" + s.port;
+  info.appendChild(meta);
+
+  try {
+    const wipe = getNextWipe(s.day, s.wipeKey);
+    if (wipe) {
+      const cd = formatCountdown(wipe.date - new Date());
+      const block = document.createElement("div");
+      block.className = "wipe-block";
+      block.innerHTML = `<span class="wipe-label">Вайп через:</span>
+        <span class="wipe-timer ${cd.cls}" data-wipe-ts="${wipe.date.getTime()}">${cd.text}</span>
+        <span class="wipe-kind"><b>${wipe.kind}</b> · ${formatDate(wipe.date)}</span>`;
+      info.appendChild(block);
+    }
+  } catch (e) {
+    console.warn("Ошибка таймера для", s.id, e);
+  }
+
+  if (s.note) {
+    const note = document.createElement("div");
+    note.className = "note";
+    note.textContent = "⚠ " + s.note;
+    info.appendChild(note);
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "actions";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "copy-btn";
+  copyBtn.innerHTML = COPY_ICON;
+  copyBtn.title = "Скопировать команду для консоли Rust";
+  copyBtn.addEventListener("click", () => copyCommand(s, copyBtn));
+
+  const btn = document.createElement("button");
+  btn.className = "btn";
+  btn.textContent = "Подключиться";
+  btn.addEventListener("click", () => connect(s));
+
+  actions.appendChild(copyBtn);
+  actions.appendChild(btn);
+  row.appendChild(info);
+  row.appendChild(actions);
+  return row;
 }
 
 function render() {
-  menuEl.innerHTML = "";
-  let total = 0;
+  try {
+    menuEl.innerHTML = "";
+    const hasWipeFilter = state.wipe.size > 0;
 
-  DAYS.forEach(day => {
-    const visible = day.servers.filter(matches);
-    if (visible.length === 0) return;
-    total += visible.length;
+    const filtered = sortServers(ALL_SERVERS.filter(matches));
 
-    const dayEl = document.createElement("section");
-    dayEl.className = "day";
+    if (filtered.length === 0) {
+      menuEl.innerHTML = '<div class="empty">Нет серверов под выбранные фильтры. Попробуй сбросить.</div>';
+      return;
+    }
 
-    const title = document.createElement("div");
-    title.className = "day-title";
-    title.textContent = day.title + "  ·  " + visible.length;
-    dayEl.appendChild(title);
+    if (hasWipeFilter) {
+      const groups = {};
+      filtered.forEach(s => {
+        if (!groups[s.day]) groups[s.day] = [];
+        groups[s.day].push(s);
+      });
+
+      // Обновленный порядок дней для группировки (1-й Чт в конце)
+      const dayOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "month"];
+      
+      dayOrder.forEach(dayKey => {
+        if (!groups[dayKey] || groups[dayKey].length === 0) return;
+        
+        const dayEl = document.createElement("section");
+        dayEl.className = "day";
+
+        const title = document.createElement("div");
+        title.className = "day-title";
+        const dayTitle = WIPE_SCHEDULE[dayKey] ? WIPE_SCHEDULE[dayKey].title : dayKey;
+        title.textContent = dayTitle + "  ·  " + groups[dayKey].length;
+        dayEl.appendChild(title);
+
+        const list = document.createElement("div");
+        list.className = "servers";
+        groups[dayKey].forEach(s => list.appendChild(renderServer(s)));
+        dayEl.appendChild(list);
+        menuEl.appendChild(dayEl);
+      });
+      return;
+    }
 
     const list = document.createElement("div");
     list.className = "servers";
+    filtered.forEach(s => list.appendChild(renderServer(s)));
+    menuEl.appendChild(list);
 
-    visible.forEach(s => {
-      const row = document.createElement("div");
-      row.className = "server";
-
-      const info = document.createElement("div");
-      info.className = "info";
-
-      const name = document.createElement("div");
-      name.className = "name";
-      name.innerHTML = s.id + ' <span class="tag">' + s.mode + '</span>';
-      info.appendChild(name);
-
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.textContent = s.ip + ":" + s.port;
-      info.appendChild(meta);
-
-      if (s.note) {
-        const note = document.createElement("div");
-        note.className = "note";
-        note.textContent = "⚠ " + s.note;
-        info.appendChild(note);
-      }
-
-      const actions = document.createElement("div");
-      actions.className = "actions";
-
-      const copyBtn = document.createElement("button");
-      copyBtn.className = "copy-btn";
-      copyBtn.innerHTML = COPY_ICON;
-      copyBtn.title = "Скопировать команду для консоли Rust";
-      copyBtn.setAttribute("aria-label", "Скопировать команду для консоли");
-      copyBtn.addEventListener("click", () => copyCommand(s, copyBtn));
-
-      const btn = document.createElement("button");
-      btn.className = "btn";
-      btn.textContent = "Подключиться";
-      btn.addEventListener("click", () => connect(s));
-
-      actions.appendChild(copyBtn);
-      actions.appendChild(btn);
-
-      row.appendChild(info);
-      row.appendChild(actions);
-      list.appendChild(row);
-    });
-
-    dayEl.appendChild(list);
-    menuEl.appendChild(dayEl);
-  });
-
-  if (total === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    empty.textContent = "Нет серверов под выбранные фильтры. Попробуй сбросить.";
-    menuEl.appendChild(empty);
+  } catch(e) {
+    console.error("Критическая ошибка рендера:", e);
+    menuEl.innerHTML = '<div class="empty" style="color:#e05a2b">Произошла ошибка при отображении списка. Обновите страницу (Ctrl+F5).</div>';
   }
 }
 
-buildChips(teamChipsEl, TEAM_LABELS, "team");
-buildChips(typeChipsEl, TYPE_LABELS, "type");
-document.getElementById("resetBtn").addEventListener("click", resetFilters);
-render();
+function tickTimers() {
+  try {
+    document.querySelectorAll(".wipe-timer").forEach(el => {
+      const ts = Number(el.dataset.wipeTs);
+      if (!ts) return;
+      const cd = formatCountdown(ts - Date.now());
+      el.textContent = cd.text;
+      el.className = "wipe-timer " + cd.cls;
+    });
+  } catch(e) {}
+}
+setInterval(tickTimers, 30000);
+
+try {
+  buildChips(teamChipsEl, TEAM_LABELS, "team");
+  buildChips(typeChipsEl, TYPE_LABELS, "type");
+  buildChips(wipeChipsEl, WIPE_LABELS, "wipe", "wipe");
+  document.getElementById("resetBtn").addEventListener("click", resetFilters);
+  render();
+} catch(e) {
+  console.error("Ошибка инициализации:", e);
+}
 </script>
 </body>
 </html>
