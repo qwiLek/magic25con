@@ -299,43 +299,358 @@ const WIPE_SCHEDULE_FAR_EAST = {
 const WIPE_LABELS = { mon: "Пн", tue: "Вт", wed: "Ср", thu: "Чт", fri: "Пт", sat: "Сб", sun: "Вс", month: "1-й Чт" };
 
 const DEFAULT_SERVERS = [
-  { id: "MR 1",  day: "fri", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.207.214.25",  port: "10000" },
-  { id: "MR 2",  day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "10000" },
-  { id: "MR 3",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.46",    port: "20000" },
-  { id: "MR 4",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.24",  port: "10000" },
-  { id: "MR 5",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.24",  port: "20000" },
-  { id: "MR 6",  day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.25",  port: "20000" },
-  { id: "MR 7",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.22",  port: "10000" },
-  { id: "MR 8",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.22",  port: "20000" },
-  { id: "MR 9",  day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.23",  port: "10000" },
-  { id: "MR 10", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.23",  port: "20000" },
-  { id: "MR 11", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.134", port: "20000" },
-  { id: "MR 12", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.21",  port: "10000" },
-  { id: "MR 13", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.134", port: "10000" },
-  { id: "MR 14", day: "fri", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "80.242.59.71",    port: "10000" },
-  { id: "MR 15", day: "mon", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "185.207.214.27",  port: "20000" },
-  { id: "MR 16", day: "mon", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.189.255.130", port: "20000" },
-  { id: "MR 17", day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.28",  port: "20000" },
-  { id: "MR 18", day: "wed", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.21",    port: "10000", note: "На глобал вайп в четверг" },
-  { id: "MR 19", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.27",  port: "10000" },
-  { id: "MR 20", day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.118", port: "20000" },
-  { id: "MR 21", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "152.89.199.34",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
-  { id: "MR 22", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.130", port: "10000", note: "Раз в 2 недели" },
-  { id: "MR 23", day: "fri", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.21",  port: "20000" },
-  { id: "MR 24", day: "mon", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.221", port: "10000" },
-  { id: "MR 25", day: "thu", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "20000", note: "Вайп в 14:00 МСК" },
-  { id: "MR 26", day: "fri", mode: "Vanilla 2x, Duo",      team: "duo",     type: "vanilla", ip: "185.207.214.221", port: "20000" },
-  { id: "MR 27", day: "month", mode: "Vanilla 2x Monthly, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.227", port: "10000" },
-  { id: "MR 28", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "152.89.199.55",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
-  { id: "MR 29", day: "wed", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.189.255.188", port: "10000", note: "На глобал ждёт своего вайпа в среду" },
-  { id: "MR 30", day: "sat", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "20000" },
-  { id: "MR 31", day: "sun", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.46",    port: "10000" },
-  { id: "MR 32", day: "tue", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "10000" },
-  { id: "MR 33", day: "wed", mode: "Modded, NoLimit",      team: "nolimit", type: "modded",  ip: "80.242.59.231",   port: "10000" },
-  { id: "MR 34", day: "wed", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.232",   port: "10000" },
-  { id: "MR 35", day: "sun", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.188", port: "20000" },
-  { id: "MR Long", day: "month", mode: "Classic, No limit", team: "nolimit", type: "classic", ip: "80.242.59.250", port: "10000" },
-  { id: "MR Main", day: "thu", mode: "Classic, No limit",   team: "nolimit", type: "classic", ip: "185.207.214.136", port: "10000" }
+  {
+    "id": "MR 1",
+    "day": "fri",
+    "mode": "Modded, Solo",
+    "team": "solo",
+    "type": "modded",
+    "ip": "185.207.214.25",
+    "port": "10000"
+  },
+  {
+    "id": "MR 2",
+    "day": "mon",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "80.242.59.57",
+    "port": "10000"
+  },
+  {
+    "id": "MR 3",
+    "day": "fri",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "80.242.59.46",
+    "port": "20000"
+  },
+  {
+    "id": "MR 4",
+    "day": "fri",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "185.207.214.24",
+    "port": "10000"
+  },
+  {
+    "id": "MR 5",
+    "day": "fri",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "185.207.214.24",
+    "port": "20000"
+  },
+  {
+    "id": "MR 6",
+    "day": "mon",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "185.207.214.25",
+    "port": "20000"
+  },
+  {
+    "id": "MR 7",
+    "day": "fri",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "185.207.214.22",
+    "port": "10000"
+  },
+  {
+    "id": "MR 8",
+    "day": "fri",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "185.207.214.22",
+    "port": "20000"
+  },
+  {
+    "id": "MR 9",
+    "day": "mon",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "185.207.214.23",
+    "port": "10000"
+  },
+  {
+    "id": "MR 10",
+    "day": "mon",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "185.207.214.23",
+    "port": "20000"
+  },
+  {
+    "id": "MR 11",
+    "day": "mon",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "185.207.214.134",
+    "port": "20000"
+  },
+  {
+    "id": "MR 12",
+    "day": "fri",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "185.207.214.21",
+    "port": "10000"
+  },
+  {
+    "id": "MR 13",
+    "day": "fri",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "185.207.214.134",
+    "port": "10000"
+  },
+  {
+    "id": "MR 14",
+    "day": "fri",
+    "mode": "Modded, No limit",
+    "team": "nolimit",
+    "type": "modded",
+    "ip": "80.242.59.71",
+    "port": "10000"
+  },
+  {
+    "id": "MR 15",
+    "day": "mon",
+    "mode": "Modded, No limit",
+    "team": "nolimit",
+    "type": "modded",
+    "ip": "185.207.214.27",
+    "port": "20000"
+  },
+  {
+    "id": "MR 16",
+    "day": "mon",
+    "mode": "Modded, Solo",
+    "team": "solo",
+    "type": "modded",
+    "ip": "185.189.255.130",
+    "port": "20000"
+  },
+  {
+    "id": "MR 17",
+    "day": "mon",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "185.207.214.28",
+    "port": "20000"
+  },
+  {
+    "id": "MR 18",
+    "day": "wed",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "80.242.59.21",
+    "port": "10000",
+    "note": "На глобал вайп в четверг"
+  },
+  {
+    "id": "MR 19",
+    "day": "fri",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "185.207.214.27",
+    "port": "10000"
+  },
+  {
+    "id": "MR 20",
+    "day": "mon",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "185.207.214.118",
+    "port": "20000"
+  },
+  {
+    "id": "MR 21",
+    "day": "fri",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "152.89.199.34",
+    "port": "10000",
+    "note": "Дальневосточный · Вайп в 10:00 МСК",
+    "wipeKey": "fri_far_east"
+  },
+  {
+    "id": "MR 22",
+    "day": "fri",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "185.189.255.130",
+    "port": "10000",
+    "note": "Раз в 2 недели"
+  },
+  {
+    "id": "MR 23",
+    "day": "fri",
+    "mode": "Vanilla 2x, Trio",
+    "team": "trio",
+    "type": "vanilla",
+    "ip": "185.207.214.21",
+    "port": "20000"
+  },
+  {
+    "id": "MR 24",
+    "day": "mon",
+    "mode": "Vanilla 2x, Trio",
+    "team": "trio",
+    "type": "vanilla",
+    "ip": "185.207.214.221",
+    "port": "10000"
+  },
+  {
+    "id": "MR 25",
+    "day": "thu",
+    "mode": "Modded 2x, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "80.242.59.229",
+    "port": "20000",
+    "note": "Вайп в 14:00 МСК"
+  },
+  {
+    "id": "MR 26",
+    "day": "fri",
+    "mode": "Vanilla 2x, Duo",
+    "team": "duo",
+    "type": "vanilla",
+    "ip": "185.207.214.221",
+    "port": "20000"
+  },
+  {
+    "id": "MR 27",
+    "day": "month",
+    "mode": "Vanilla 2x Monthly, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "80.242.59.227",
+    "port": "10000"
+  },
+  {
+    "id": "MR 28",
+    "day": "fri",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "152.89.199.55",
+    "port": "10000",
+    "note": "Дальневосточный · Вайп в 10:00 МСК",
+    "wipeKey": "fri_far_east"
+  },
+  {
+    "id": "MR 29",
+    "day": "wed",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "185.189.255.188",
+    "port": "10000",
+    "note": "На глобал ждёт своего вайпа в среду"
+  },
+  {
+    "id": "MR 30",
+    "day": "sat",
+    "mode": "Modded 2x, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "80.242.59.57",
+    "port": "20000"
+  },
+  {
+    "id": "MR 31",
+    "day": "sun",
+    "mode": "Modded 2x, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "80.242.59.46",
+    "port": "10000"
+  },
+  {
+    "id": "MR 32",
+    "day": "tue",
+    "mode": "Modded, Duo",
+    "team": "duo",
+    "type": "modded",
+    "ip": "80.242.59.229",
+    "port": "10000"
+  },
+  {
+    "id": "MR 33",
+    "day": "wed",
+    "mode": "Modded, NoLimit",
+    "team": "nolimit",
+    "type": "modded",
+    "ip": "80.242.59.231",
+    "port": "10000"
+  },
+  {
+    "id": "MR 34",
+    "day": "wed",
+    "mode": "Modded, Trio",
+    "team": "trio",
+    "type": "modded",
+    "ip": "80.242.59.232",
+    "port": "10000"
+  },
+  {
+    "id": "MR 35",
+    "day": "sun",
+    "mode": "Vanilla 2x, No limit",
+    "team": "nolimit",
+    "type": "vanilla",
+    "ip": "185.189.255.188",
+    "port": "20000"
+  },
+  {
+    "id": "MR Long",
+    "day": "month",
+    "mode": "Classic, No limit",
+    "team": "nolimit",
+    "type": "classic",
+    "ip": "80.242.59.250",
+    "port": "10000"
+  },
+  {
+    "id": "MR Main",
+    "day": "thu",
+    "mode": "Classic, No limit",
+    "team": "nolimit",
+    "type": "classic",
+    "ip": "185.207.214.136",
+    "port": "10000"
+  },
+  {
+    "id": "32423",
+    "ip": "423423",
+    "port": "23423423",
+    "day": "mon",
+    "mode": "34242",
+    "team": "solo",
+    "type": "vanilla",
+    "note": "23424234",
+    "wipeKey": ""
+  }
 ];
 
 let ALL_SERVERS = [];
