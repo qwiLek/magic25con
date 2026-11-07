@@ -1,4 +1,6 @@
-<html lang="ru"><head>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Magic Rust — Подключение к серверам</title>
@@ -157,12 +159,7 @@
     .admin-form, .publish-row { grid-template-columns: 1fr; }
   }
 </style>
-<style>
-  .imageye-selected {
-    outline: 2px solid black !important;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
-  }
-</style></head>
+</head>
 <body>
 <div class="wrap">
   <header>
@@ -173,20 +170,20 @@
   <div class="filters">
     <div class="filter-row">
       <span class="filter-label">Команда</span>
-      <div class="chips" id="teamChips"><button class="chip" data-key="solo">Solo</button><button class="chip" data-key="duo">Duo</button><button class="chip" data-key="trio">Trio</button><button class="chip" data-key="nolimit">No limit</button></div>
+      <div class="chips" id="teamChips"></div>
     </div>
     <div class="filter-row">
       <span class="filter-label">Тип</span>
-      <div class="chips" id="typeChips"><button class="chip" data-key="vanilla">Vanilla</button><button class="chip" data-key="modded">Modded</button><button class="chip" data-key="classic">Classic</button></div>
+      <div class="chips" id="typeChips"></div>
     </div>
     <div class="filter-row">
       <span class="filter-label">Вайп</span>
-      <div class="chips" id="wipeChips"><button class="chip wipe" data-key="mon">Пн</button><button class="chip wipe" data-key="tue">Вт</button><button class="chip wipe" data-key="wed">Ср</button><button class="chip wipe" data-key="thu">Чт</button><button class="chip wipe" data-key="fri">Пт</button><button class="chip wipe" data-key="sat">Сб</button><button class="chip wipe" data-key="sun">Вс</button><button class="chip wipe" data-key="month">1-й Чт</button></div>
+      <div class="chips" id="wipeChips"></div>
       <button class="reset" id="resetBtn">Сбросить</button>
     </div>
   </div>
 
-  <div id="menu"><div class="servers"><div class="server"><div class="info"><div class="name">MR 1 <span class="tag">Modded, Solo</span></div><div class="meta">185.207.214.25:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 2 <span class="tag">Modded, Duo</span></div><div class="meta">80.242.59.57:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 3 <span class="tag">Modded, Trio</span></div><div class="meta">80.242.59.46:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 4 <span class="tag">Modded, Trio</span></div><div class="meta">185.207.214.24:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 5 <span class="tag">Modded, Duo</span></div><div class="meta">185.207.214.24:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 6 <span class="tag">Modded, Trio</span></div><div class="meta">185.207.214.25:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 7 <span class="tag">Modded, Trio</span></div><div class="meta">185.207.214.22:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 8 <span class="tag">Modded, Duo</span></div><div class="meta">185.207.214.22:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 9 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">185.207.214.23:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 10 <span class="tag">Modded, Trio</span></div><div class="meta">185.207.214.23:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 11 <span class="tag">Modded, Trio</span></div><div class="meta">185.207.214.134:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 12 <span class="tag">Modded, Duo</span></div><div class="meta">185.207.214.21:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 13 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">185.207.214.134:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 14 <span class="tag">Modded, No limit</span></div><div class="meta">80.242.59.71:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 15 <span class="tag">Modded, No limit</span></div><div class="meta">185.207.214.27:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 16 <span class="tag">Modded, Solo</span></div><div class="meta">185.189.255.130:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 17 <span class="tag">Modded, Duo</span></div><div class="meta">185.207.214.28:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 18 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">80.242.59.21:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794394800000">3 д 22 ч 57 мин</span><span class="wipe-kind"><b>Глобальный вайп</b> · 11.11.2026 14:00 МСК</span></div><div class="note">⚠ На глобал вайп в четверг</div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 19 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">185.207.214.27:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 20 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">185.207.214.118:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 21 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">152.89.199.34:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794553200000">5 д 18 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 10:00 МСК</span></div><div class="note">⚠ Дальневосточный · Вайп в 10:00 МСК</div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 22 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">185.189.255.130:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div><div class="note">⚠ Раз в 2 недели</div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 23 <span class="tag">Vanilla 2x, Trio</span></div><div class="meta">185.207.214.21:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 24 <span class="tag">Vanilla 2x, Trio</span></div><div class="meta">185.207.214.221:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794222000000">1 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 09.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 25 <span class="tag">Modded 2x, Duo</span></div><div class="meta">80.242.59.229:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794492000000">5 д 1 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 12.11.2026 17:00 МСК</span></div><div class="note">⚠ Вайп в 14:00 МСК</div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 26 <span class="tag">Vanilla 2x, Duo</span></div><div class="meta">185.207.214.221:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794567600000">5 д 22 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 27 <span class="tag">Vanilla 2x Monthly, No limit</span></div><div class="meta">80.242.59.227:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1796295600000">25 д 22 ч 57 мин</span><span class="wipe-kind"><b>Глобальный вайп (1-й четверг)</b> · 03.12.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 28 <span class="tag">Modded, Duo</span></div><div class="meta">152.89.199.55:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794553200000">5 д 18 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 13.11.2026 10:00 МСК</span></div><div class="note">⚠ Дальневосточный · Вайп в 10:00 МСК</div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 29 <span class="tag">Modded, Duo</span></div><div class="meta">185.189.255.188:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794394800000">3 д 22 ч 57 мин</span><span class="wipe-kind"><b>Глобальный вайп</b> · 11.11.2026 14:00 МСК</span></div><div class="note">⚠ На глобал ждёт своего вайпа в среду</div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 30 <span class="tag">Modded 2x, Duo</span></div><div class="meta">80.242.59.57:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794654000000">6 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 14.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 31 <span class="tag">Modded 2x, Duo</span></div><div class="meta">80.242.59.46:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer soon" data-wipe-ts="1794135600000">22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 08.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 32 <span class="tag">Modded, Duo</span></div><div class="meta">80.242.59.229:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794308400000">2 д 22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 10.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 33 <span class="tag">Modded, NoLimit</span></div><div class="meta">80.242.59.231:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794394800000">3 д 22 ч 57 мин</span><span class="wipe-kind"><b>Глобальный вайп</b> · 11.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 34 <span class="tag">Modded, Trio</span></div><div class="meta">80.242.59.232:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794394800000">3 д 22 ч 57 мин</span><span class="wipe-kind"><b>Глобальный вайп</b> · 11.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR 35 <span class="tag">Vanilla 2x, No limit</span></div><div class="meta">185.189.255.188:20000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer soon" data-wipe-ts="1794135600000">22 ч 57 мин</span><span class="wipe-kind"><b>Полный вайп (с чертежами)</b> · 08.11.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR Long <span class="tag">Classic, No limit</span></div><div class="meta">80.242.59.250:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1796295600000">25 д 22 ч 57 мин</span><span class="wipe-kind"><b>Глобальный вайп (1-й четверг)</b> · 03.12.2026 14:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div><div class="server"><div class="info"><div class="name">MR Main <span class="tag">Classic, No limit</span></div><div class="meta">185.207.214.136:10000</div><div class="wipe-block"><span class="wipe-label">Вайп через:</span><span class="wipe-timer " data-wipe-ts="1794492000000">5 д 1 ч 57 мин</span><span class="wipe-kind"><b>Вайп карты (без чертежей)</b> · 12.11.2026 17:00 МСК</span></div></div><div class="actions"><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn">Подключиться</button></div></div></div></div>
+  <div id="menu"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -207,9 +204,9 @@
 </div>
 
 <!-- Основное окно админки -->
-<div class="admin-modal open" id="adminModal">
+<div class="admin-modal" id="adminModal">
   <div class="admin-content">
-    <button class="admin-close" id="adminClose">×</button>
+    <button class="admin-close" id="adminClose">&times;</button>
     <div class="admin-title">Управление серверами</div>
     
     <div class="admin-form" id="adminForm">
@@ -232,7 +229,7 @@
           <option value="vanilla">Vanilla</option><option value="modded">Modded</option><option value="classic">Classic</option>
         </select>
       </label>
-      <label>Кастомный режим (необязательно) <input type="text" id="formCustomMode" placeholder="Vanilla, Solo"></label>
+      <label>Кастомный режим (необязательно) <input type="text" id="formCustomMode" placeholder="Автогенерация"></label>
       <label>IP <input type="text" id="formIp" placeholder="1.2.3.4"></label>
       <label>Порт <input type="text" id="formPort" placeholder="10000"></label>
       <label>Примечание <input type="text" id="formNote" placeholder="Доп. инфо"></label>
@@ -247,44 +244,7 @@
       </div>
     </div>
 
-    <div class="admin-list" id="adminList"><div class="admin-item"><div class="admin-item-info"><b>MR 1</b> — Modded, Solo (185.207.214.25:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 2</b> — Modded, Duo (80.242.59.57:10000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 3</b> — Modded, Trio (80.242.59.46:20000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 4</b> — Modded, Trio (185.207.214.24:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 5</b> — Modded, Duo (185.207.214.24:20000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 6</b> — Modded, Trio (185.207.214.25:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 7</b> — Modded, Trio (185.207.214.22:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 8</b> — Modded, Duo (185.207.214.22:20000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 9</b> — Vanilla 2x, No limit (185.207.214.23:10000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 10</b> — Modded, Trio (185.207.214.23:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 11</b> — Modded, Trio (185.207.214.134:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 12</b> — Modded, Duo (185.207.214.21:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 13</b> — Vanilla 2x, No limit (185.207.214.134:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 14</b> — Modded, No limit (80.242.59.71:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 15</b> — Modded, No limit (185.207.214.27:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 16</b> — Modded, Solo (185.189.255.130:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 17</b> — Modded, Duo (185.207.214.28:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 18</b> — Vanilla 2x, No limit (80.242.59.21:10000) <span style="color:var(--muted);font-size:0.8rem">[wed]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 19</b> — Vanilla 2x, No limit (185.207.214.27:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 20</b> — Vanilla 2x, No limit (185.207.214.118:20000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 21</b> — Vanilla 2x, No limit (152.89.199.34:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 22</b> — Vanilla 2x, No limit (185.189.255.130:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 23</b> — Vanilla 2x, Trio (185.207.214.21:20000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 24</b> — Vanilla 2x, Trio (185.207.214.221:10000) <span style="color:var(--muted);font-size:0.8rem">[mon]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 25</b> — Modded 2x, Duo (80.242.59.229:20000) <span style="color:var(--muted);font-size:0.8rem">[thu]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 26</b> — Vanilla 2x, Duo (185.207.214.221:20000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 27</b> — Vanilla 2x Monthly, No limit (80.242.59.227:10000) <span style="color:var(--muted);font-size:0.8rem">[month]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 28</b> — Modded, Duo (152.89.199.55:10000) <span style="color:var(--muted);font-size:0.8rem">[fri]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 29</b> — Modded, Duo (185.189.255.188:10000) <span style="color:var(--muted);font-size:0.8rem">[wed]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 30</b> — Modded 2x, Duo (80.242.59.57:20000) <span style="color:var(--muted);font-size:0.8rem">[sat]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 31</b> — Modded 2x, Duo (80.242.59.46:10000) <span style="color:var(--muted);font-size:0.8rem">[sun]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 32</b> — Modded, Duo (80.242.59.229:10000) <span style="color:var(--muted);font-size:0.8rem">[tue]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 33</b> — Modded, NoLimit (80.242.59.231:10000) <span style="color:var(--muted);font-size:0.8rem">[wed]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 34</b> — Modded, Trio (80.242.59.232:10000) <span style="color:var(--muted);font-size:0.8rem">[wed]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR 35</b> — Vanilla 2x, No limit (185.189.255.188:20000) <span style="color:var(--muted);font-size:0.8rem">[sun]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR Long</b> — Classic, No limit (80.242.59.250:10000) <span style="color:var(--muted);font-size:0.8rem">[month]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div><div class="admin-item"><div class="admin-item-info"><b>MR Main</b> — Classic, No limit (185.207.214.136:10000) <span style="color:var(--muted);font-size:0.8rem">[thu]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div></div></div>
+    <div class="admin-list" id="adminList"></div>
 
     <button class="btn-cancel" id="btnResetDefault" style="width:100%;margin-top:10px;color:var(--danger);border-color:var(--danger);">Сбросить к заводским настройкам</button>
 
@@ -339,347 +299,43 @@ const WIPE_SCHEDULE_FAR_EAST = {
 const WIPE_LABELS = { mon: "Пн", tue: "Вт", wed: "Ср", thu: "Чт", fri: "Пт", sat: "Сб", sun: "Вс", month: "1-й Чт" };
 
 const DEFAULT_SERVERS = [
-  {
-    "id": "MR 1",
-    "day": "fri",
-    "mode": "Modded, Solo",
-    "team": "solo",
-    "type": "modded",
-    "ip": "185.207.214.25",
-    "port": "10000"
-  },
-  {
-    "id": "MR 2",
-    "day": "mon",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.57",
-    "port": "10000"
-  },
-  {
-    "id": "MR 3",
-    "day": "fri",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "80.242.59.46",
-    "port": "20000"
-  },
-  {
-    "id": "MR 4",
-    "day": "fri",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.24",
-    "port": "10000"
-  },
-  {
-    "id": "MR 5",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.24",
-    "port": "20000"
-  },
-  {
-    "id": "MR 6",
-    "day": "mon",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.25",
-    "port": "20000"
-  },
-  {
-    "id": "MR 7",
-    "day": "fri",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.22",
-    "port": "10000"
-  },
-  {
-    "id": "MR 8",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.22",
-    "port": "20000"
-  },
-  {
-    "id": "MR 9",
-    "day": "mon",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.23",
-    "port": "10000"
-  },
-  {
-    "id": "MR 10",
-    "day": "mon",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.23",
-    "port": "20000"
-  },
-  {
-    "id": "MR 11",
-    "day": "mon",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "185.207.214.134",
-    "port": "20000"
-  },
-  {
-    "id": "MR 12",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.21",
-    "port": "10000"
-  },
-  {
-    "id": "MR 13",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.134",
-    "port": "10000"
-  },
-  {
-    "id": "MR 14",
-    "day": "fri",
-    "mode": "Modded, No limit",
-    "team": "nolimit",
-    "type": "modded",
-    "ip": "80.242.59.71",
-    "port": "10000"
-  },
-  {
-    "id": "MR 15",
-    "day": "mon",
-    "mode": "Modded, No limit",
-    "team": "nolimit",
-    "type": "modded",
-    "ip": "185.207.214.27",
-    "port": "20000"
-  },
-  {
-    "id": "MR 16",
-    "day": "mon",
-    "mode": "Modded, Solo",
-    "team": "solo",
-    "type": "modded",
-    "ip": "185.189.255.130",
-    "port": "20000"
-  },
-  {
-    "id": "MR 17",
-    "day": "mon",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.207.214.28",
-    "port": "20000"
-  },
-  {
-    "id": "MR 18",
-    "day": "wed",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "80.242.59.21",
-    "port": "10000",
-    "note": "На глобал вайп в четверг"
-  },
-  {
-    "id": "MR 19",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.27",
-    "port": "10000"
-  },
-  {
-    "id": "MR 20",
-    "day": "mon",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.207.214.118",
-    "port": "20000"
-  },
-  {
-    "id": "MR 21",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "152.89.199.34",
-    "port": "10000",
-    "note": "Дальневосточный · Вайп в 10:00 МСК",
-    "wipeKey": "fri_far_east"
-  },
-  {
-    "id": "MR 22",
-    "day": "fri",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.189.255.130",
-    "port": "10000",
-    "note": "Раз в 2 недели"
-  },
-  {
-    "id": "MR 23",
-    "day": "fri",
-    "mode": "Vanilla 2x, Trio",
-    "team": "trio",
-    "type": "vanilla",
-    "ip": "185.207.214.21",
-    "port": "20000"
-  },
-  {
-    "id": "MR 24",
-    "day": "mon",
-    "mode": "Vanilla 2x, Trio",
-    "team": "trio",
-    "type": "vanilla",
-    "ip": "185.207.214.221",
-    "port": "10000"
-  },
-  {
-    "id": "MR 25",
-    "day": "thu",
-    "mode": "Modded 2x, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.229",
-    "port": "20000",
-    "note": "Вайп в 14:00 МСК"
-  },
-  {
-    "id": "MR 26",
-    "day": "fri",
-    "mode": "Vanilla 2x, Duo",
-    "team": "duo",
-    "type": "vanilla",
-    "ip": "185.207.214.221",
-    "port": "20000"
-  },
-  {
-    "id": "MR 27",
-    "day": "month",
-    "mode": "Vanilla 2x Monthly, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "80.242.59.227",
-    "port": "10000"
-  },
-  {
-    "id": "MR 28",
-    "day": "fri",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "152.89.199.55",
-    "port": "10000",
-    "note": "Дальневосточный · Вайп в 10:00 МСК",
-    "wipeKey": "fri_far_east"
-  },
-  {
-    "id": "MR 29",
-    "day": "wed",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "185.189.255.188",
-    "port": "10000",
-    "note": "На глобал ждёт своего вайпа в среду"
-  },
-  {
-    "id": "MR 30",
-    "day": "sat",
-    "mode": "Modded 2x, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.57",
-    "port": "20000"
-  },
-  {
-    "id": "MR 31",
-    "day": "sun",
-    "mode": "Modded 2x, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.46",
-    "port": "10000"
-  },
-  {
-    "id": "MR 32",
-    "day": "tue",
-    "mode": "Modded, Duo",
-    "team": "duo",
-    "type": "modded",
-    "ip": "80.242.59.229",
-    "port": "10000"
-  },
-  {
-    "id": "MR 33",
-    "day": "wed",
-    "mode": "Modded, NoLimit",
-    "team": "nolimit",
-    "type": "modded",
-    "ip": "80.242.59.231",
-    "port": "10000"
-  },
-  {
-    "id": "MR 34",
-    "day": "wed",
-    "mode": "Modded, Trio",
-    "team": "trio",
-    "type": "modded",
-    "ip": "80.242.59.232",
-    "port": "10000"
-  },
-  {
-    "id": "MR 35",
-    "day": "sun",
-    "mode": "Vanilla 2x, No limit",
-    "team": "nolimit",
-    "type": "vanilla",
-    "ip": "185.189.255.188",
-    "port": "20000"
-  },
-  {
-    "id": "MR Long",
-    "day": "month",
-    "mode": "Classic, No limit",
-    "team": "nolimit",
-    "type": "classic",
-    "ip": "80.242.59.250",
-    "port": "10000"
-  },
-  {
-    "id": "MR Main",
-    "day": "thu",
-    "mode": "Classic, No limit",
-    "team": "nolimit",
-    "type": "classic",
-    "ip": "185.207.214.136",
-    "port": "10000"
-  }
+  { id: "MR 1",  day: "fri", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.207.214.25",  port: "10000" },
+  { id: "MR 2",  day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "10000" },
+  { id: "MR 3",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.46",    port: "20000" },
+  { id: "MR 4",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.24",  port: "10000" },
+  { id: "MR 5",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.24",  port: "20000" },
+  { id: "MR 6",  day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.25",  port: "20000" },
+  { id: "MR 7",  day: "fri", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.22",  port: "10000" },
+  { id: "MR 8",  day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.22",  port: "20000" },
+  { id: "MR 9",  day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.23",  port: "10000" },
+  { id: "MR 10", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.23",  port: "20000" },
+  { id: "MR 11", day: "mon", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.134", port: "20000" },
+  { id: "MR 12", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.21",  port: "10000" },
+  { id: "MR 13", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.134", port: "10000" },
+  { id: "MR 14", day: "fri", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "80.242.59.71",    port: "10000" },
+  { id: "MR 15", day: "mon", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "185.207.214.27",  port: "20000" },
+  { id: "MR 16", day: "mon", mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.189.255.130", port: "20000" },
+  { id: "MR 17", day: "mon", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.28",  port: "20000" },
+  { id: "MR 18", day: "wed", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.21",    port: "10000", note: "На глобал вайп в четверг" },
+  { id: "MR 19", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.27",  port: "10000" },
+  { id: "MR 20", day: "mon", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.118", port: "20000" },
+  { id: "MR 21", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "152.89.199.34",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
+  { id: "MR 22", day: "fri", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.130", port: "10000", note: "Раз в 2 недели" },
+  { id: "MR 23", day: "fri", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.21",  port: "20000" },
+  { id: "MR 24", day: "mon", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.221", port: "10000" },
+  { id: "MR 25", day: "thu", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "20000", note: "Вайп в 14:00 МСК" },
+  { id: "MR 26", day: "fri", mode: "Vanilla 2x, Duo",      team: "duo",     type: "vanilla", ip: "185.207.214.221", port: "20000" },
+  { id: "MR 27", day: "month", mode: "Vanilla 2x Monthly, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.227", port: "10000" },
+  { id: "MR 28", day: "fri", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "152.89.199.55",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК", wipeKey: "fri_far_east" },
+  { id: "MR 29", day: "wed", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.189.255.188", port: "10000", note: "На глобал ждёт своего вайпа в среду" },
+  { id: "MR 30", day: "sat", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.57",    port: "20000" },
+  { id: "MR 31", day: "sun", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.46",    port: "10000" },
+  { id: "MR 32", day: "tue", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "10000" },
+  { id: "MR 33", day: "wed", mode: "Modded, NoLimit",      team: "nolimit", type: "modded",  ip: "80.242.59.231",   port: "10000" },
+  { id: "MR 34", day: "wed", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.232",   port: "10000" },
+  { id: "MR 35", day: "sun", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.188", port: "20000" },
+  { id: "MR Long", day: "month", mode: "Classic, No limit", team: "nolimit", type: "classic", ip: "80.242.59.250", port: "10000" },
+  { id: "MR Main", day: "thu", mode: "Classic, No limit",   team: "nolimit", type: "classic", ip: "185.207.214.136", port: "10000" }
 ];
 
 let ALL_SERVERS = [];
@@ -1100,6 +756,5 @@ try {
   render();
 } catch(e) { console.error("Ошибка инициализации:", e); }
 </script>
-
-
-</body></html>
+</body>
+</html>
