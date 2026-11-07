@@ -11,7 +11,7 @@
     --text: #e6e6e6; --muted: #8b93a1; --border: #262b36;
     --chip: #222732; --chip-active: #e05a2b;
     --copy: #2a3140; --copy-hover: #343d4f;
-    --ok: #3ba55d; --warn: #c9a227; --soon: #e05a2b;
+    --ok: #3ba55d; --warn: #c9a227; --soon: #e05a2b; --danger: #ff4d4d;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 16px 64px; }
@@ -64,7 +64,7 @@
   .btn:active { transform: scale(0.97); }
 
   .empty { text-align: center; color: var(--muted); padding: 40px 16px; font-size: 0.95rem; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: #222732; color: var(--text); padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.88rem; box-shadow: 0 8px 30px rgba(0,0,0,0.5); transition: transform 0.25s ease; max-width: 90vw; text-align: center; z-index: 100; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: #222732; color: var(--text); padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.88rem; box-shadow: 0 8px 30px rgba(0,0,0,0.5); transition: transform 0.25s ease; max-width: 90vw; text-align: center; z-index: 300; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast b { color: var(--accent); }
   .toast code { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: #171a21; padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; color: #c9d1d9; }
@@ -91,39 +91,41 @@
   .btn-save:hover { background: var(--accent-hover); }
   .btn-cancel { background: var(--copy); color: var(--text); border: 1px solid var(--border); }
   .btn-cancel:hover { background: var(--copy-hover); }
-  .btn-export { background: var(--ok); color: #fff; width: 100%; margin-top: 10px; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
-  .btn-reset { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; width: 100%; margin-top: 10px; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-  .btn-reset:hover { background: rgba(255, 77, 77, 0.1); }
   
   .admin-list { margin-top: 20px; }
   .admin-item { display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
   .admin-item-info { flex: 1; font-size: 0.9rem; }
   .admin-item-actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; }
   .admin-item-actions .edit { color: var(--warn); }
-  .admin-item-actions .delete { color: #ff4d4d; }
+  .admin-item-actions .delete { color: var(--danger); }
 
-  /* Маленькое окно авторизации возле шестеренки */
+  /* Блок публикации */
+  .publish-box {
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .publish-box h3 { font-size: 1rem; margin-bottom: 10px; }
+  .publish-box .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
+  .publish-box .hint a { color: var(--accent); }
+  .publish-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .publish-row label { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--muted); gap: 4px; }
+  .publish-row input { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px; color: var(--text); font-family: inherit; font-size: 0.9rem; }
+  .publish-row input:focus { outline: none; border-color: var(--accent); }
+  .btn-publish { background: var(--ok); color: #fff; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  .btn-publish:hover { background: #2f8b4a; }
+  .btn-publish:disabled { opacity: 0.6; cursor: wait; }
+  .publish-status { margin-top: 10px; font-size: 0.82rem; text-align: center; min-height: 1.2em; }
+  .publish-status.ok { color: var(--ok); }
+  .publish-status.err { color: var(--danger); }
+
+  /* Окно авторизации */
   .auth-widget {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    width: 260px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    z-index: 100;
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-    transform-origin: bottom right;
-    animation: popIn 0.2s ease-out;
+    position: fixed; bottom: 80px; right: 20px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    z-index: 100; display: none; flex-direction: column; gap: 10px;
+    transform-origin: bottom right; animation: popIn 0.2s ease-out;
   }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
   .auth-widget.open { display: flex; }
   .auth-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
   .auth-header span { font-size: 0.95rem; font-weight: 600; }
@@ -139,7 +141,7 @@
     border-radius: 6px; padding: 9px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
   }
   .auth-widget button.submit:hover { background: var(--accent-hover); }
-  .auth-error { color: #ff4d4d; font-size: 0.75rem; text-align: center; display: none; }
+  .auth-error { color: var(--danger); font-size: 0.75rem; text-align: center; display: none; }
 
   @media (max-width: 560px) {
     .server { flex-direction: column; align-items: stretch; }
@@ -148,7 +150,7 @@
     .btn { flex: 1; height: 44px; }
     .filter-label { width: 100%; padding-top: 0; margin-bottom: 2px; }
     .filters { position: static; }
-    .admin-form { grid-template-columns: 1fr; }
+    .admin-form, .publish-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -238,15 +240,38 @@
 
     <div class="admin-list" id="adminList"></div>
 
-    <button class="btn-export" id="btnExport">Скопировать код для index.html</button>
-    <button class="btn-reset" id="btnResetDefault">Сбросить всё к заводским настройкам</button>
+    <button class="btn-cancel" id="btnResetDefault" style="width:100%;margin-top:10px;color:var(--danger);border-color:var(--danger);">Сбросить к заводским настройкам</button>
+
+    <!-- Блок публикации на GitHub -->
+    <div class="publish-box">
+      <h3>Публикация на GitHub</h3>
+      <div class="hint">
+        Один раз создайте <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Fine-grained token</a> с правом <b>Contents: Read and write</b> для этого репозитория. Токен хранится только в памяти вкладки и стирается при обновлении страницы.
+      </div>
+      <div class="publish-row">
+        <label>Владелец / Репозиторий
+          <input type="text" id="ghRepo" placeholder="username/rust-connect">
+        </label>
+        <label>Ветка
+          <input type="text" id="ghBranch" placeholder="main" value="main">
+        </label>
+      </div>
+      <div class="publish-row" style="grid-template-columns:1fr;">
+        <label>GitHub Token (не сохраняется)
+          <input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off">
+        </label>
+      </div>
+      <button class="btn-publish" id="btnPublish">Опубликовать на GitHub</button>
+      <div class="publish-status" id="publishStatus"></div>
+    </div>
   </div>
 </div>
 
 <script>
 // СПИСОК ПОЛЬЗОВАТЕЛЕЙ АДМИНКИ
 const ADMIN_USERS = {
-  "lekaggw": "qwerty123"
+  "lekaggw": "qwerty123",
+  "rent": "123"
 };
 
 const WIPE_SCHEDULE = {
@@ -308,6 +333,9 @@ const DEFAULT_SERVERS = [
 
 let ALL_SERVERS = [];
 const STORAGE_KEY = 'magicrust_servers';
+
+// Токен GitHub хранится ТОЛЬКО в переменной (в памяти), нигде не сохраняется
+let ghTokenMemory = "";
 
 function loadServers() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -483,27 +511,19 @@ formTeam.addEventListener("change", updateModeField);
 formType.addEventListener("change", updateModeField);
 updateModeField();
 
-// ОТКРЫТИЕ/ЗАКРЫТИЕ МАЛЕНЬКОГО ОКНА АВТОРИЗАЦИИ
-document.getElementById("adminToggle").addEventListener("click", (e) => {
+document.getElementById("adminToggle").addEventListener("click", () => {
   if (sessionStorage.getItem("adminLoggedIn") === "true") {
     openAdmin();
   } else {
-    // Если виджет уже открыт - закрываем
-    if (authWidget.classList.contains("open")) {
-      authWidget.classList.remove("open");
-    } else {
-      authWidget.classList.add("open");
-      document.getElementById("authLogin").focus();
-    }
+    if (authWidget.classList.contains("open")) authWidget.classList.remove("open");
+    else { authWidget.classList.add("open"); document.getElementById("authLogin").focus(); }
   }
 });
-
 document.getElementById("authCloseBtn").addEventListener("click", () => {
   authWidget.classList.remove("open");
   document.getElementById("authError").style.display = "none";
 });
 
-// ПРОВЕРКА ЛОГИНА И ПАРОЛЯ
 document.getElementById("authSubmit").addEventListener("click", () => {
   const login = document.getElementById("authLogin").value.trim();
   const pass = document.getElementById("authPassword").value;
@@ -519,13 +539,8 @@ document.getElementById("authSubmit").addEventListener("click", () => {
     document.getElementById("authError").style.display = "block";
   }
 });
-
-document.getElementById("authPassword").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") document.getElementById("authSubmit").click();
-});
-document.getElementById("authLogin").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") document.getElementById("authPassword").focus();
-});
+document.getElementById("authPassword").addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("authSubmit").click(); });
+document.getElementById("authLogin").addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("authPassword").focus(); });
 
 function openAdmin() { renderAdminList(); adminModal.classList.add("open"); }
 function closeAdmin() { adminModal.classList.remove("open"); }
@@ -543,8 +558,7 @@ function renderAdminList() {
       formTeam.value = s.team; formType.value = s.type; 
       formCustomMode.value = s.mode; 
       formIp.value = s.ip; formPort.value = s.port; formNote.value = s.note || ""; formWipeKey.value = s.wipeKey || "";
-      btnClearForm.style.display = "block"; 
-      updateModeField();
+      btnClearForm.style.display = "block"; updateModeField();
       document.querySelector(".admin-form").scrollIntoView({ behavior: 'smooth' });
     });
     item.querySelector(".delete").addEventListener("click", () => {
@@ -559,8 +573,7 @@ function renderAdminList() {
 function clearForm() {
   editIdInput.value = ""; formId.value = ""; formDay.value = "mon"; formTeam.value = "solo"; formType.value = "modded"; 
   formCustomMode.value = ""; formIp.value = ""; formPort.value = ""; formNote.value = ""; formWipeKey.value = ""; 
-  btnClearForm.style.display = "none";
-  updateModeField();
+  btnClearForm.style.display = "none"; updateModeField();
 }
 
 document.getElementById("btnSaveServer").addEventListener("click", () => {
@@ -572,15 +585,7 @@ document.getElementById("btnSaveServer").addEventListener("click", () => {
   const autoMode = typeLabel + ", " + teamLabel;
   const finalMode = formCustomMode.value.trim() || autoMode;
 
-  const serverData = { 
-    id, ip, port, 
-    day: formDay.value, 
-    mode: finalMode, 
-    team: formTeam.value, 
-    type: formType.value, 
-    note: formNote.value.trim(), 
-    wipeKey: formWipeKey.value 
-  };
+  const serverData = { id, ip, port, day: formDay.value, mode: finalMode, team: formTeam.value, type: formType.value, note: formNote.value.trim(), wipeKey: formWipeKey.value };
 
   const editId = editIdInput.value;
   if (editId) {
@@ -594,12 +599,6 @@ document.getElementById("btnSaveServer").addEventListener("click", () => {
 
 document.getElementById("btnClearForm").addEventListener("click", clearForm);
 
-document.getElementById("btnExport").addEventListener("click", () => {
-  const code = "const DEFAULT_SERVERS = " + JSON.stringify(ALL_SERVERS, null, 2) + ";";
-  const ta = document.createElement("textarea"); ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-  alert("Код скопирован! Вставьте его в index.html вместо старого DEFAULT_SERVERS.");
-});
-
 document.getElementById("btnResetDefault").addEventListener("click", () => {
   if (confirm("Вы уверены, что хотите сбросить ВСЕ изменения и вернуть изначальный список серверов?")) {
     localStorage.removeItem(STORAGE_KEY);
@@ -611,6 +610,110 @@ document.getElementById("btnResetDefault").addEventListener("click", () => {
 
 document.getElementById("adminClose").addEventListener("click", closeAdmin);
 adminModal.addEventListener("click", (e) => { if (e.target === adminModal) closeAdmin(); });
+
+/* --- ПУБЛИКАЦИЯ НА GITHUB --- */
+const btnPublish = document.getElementById("btnPublish");
+const publishStatus = document.getElementById("publishStatus");
+
+btnPublish.addEventListener("click", async () => {
+  const repo = document.getElementById("ghRepo").value.trim();
+  const branch = document.getElementById("ghBranch").value.trim() || "main";
+  const tokenInput = document.getElementById("ghToken");
+  // Если в памяти уже есть токен, используем его. Иначе берем из поля и сохраняем в память.
+  let token = ghTokenMemory;
+  if (!token) {
+    token = tokenInput.value.trim();
+    if (!token) {
+      publishStatus.textContent = "Введите GitHub токен.";
+      publishStatus.className = "publish-status err";
+      return;
+    }
+    ghTokenMemory = token;
+  }
+  
+  if (!repo || !repo.includes("/")) {
+    publishStatus.textContent = "Укажите репозиторий в формате username/repo.";
+    publishStatus.className = "publish-status err";
+    return;
+  }
+
+  btnPublish.disabled = true;
+  publishStatus.textContent = "Публикация...";
+  publishStatus.className = "publish-status";
+
+  try {
+    // 1. Получаем SHA текущего файла index.html
+    const getUrl = `https://api.github.com/repos/${repo}/contents/index.html?ref=${branch}`;
+    const getRes = await fetch(getUrl, {
+      headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" }
+    });
+    
+    if (!getRes.ok) {
+      if (getRes.status === 404) throw new Error("Файл index.html не найден в репозитории (или неверный репозиторий/ветка).");
+      if (getRes.status === 401) throw new Error("Неверный или просроченный токен (401).");
+      if (getRes.status === 403) throw new Error("Токен не имеет прав на запись в этот репозиторий (403).");
+      throw new Error("Ошибка получения файла: " + getRes.status);
+    }
+    
+    const fileData = await getRes.json();
+    const currentSha = fileData.sha;
+    
+    // 2. Формируем новый контент файла (заменяем массив DEFAULT_SERVERS)
+    // ВАЖНО: так как мы не храним весь код страницы в JS, мы должны прочитать текущий файл,
+    // найти там DEFAULT_SERVERS и заменить его.
+    const currentContent = atob(fileData.content.replace(/\n/g, ""));
+    
+    const startMarker = "const DEFAULT_SERVERS = ";
+    const endMarker = "];";
+    const startIdx = currentContent.indexOf(startMarker);
+    if (startIdx === -1) throw new Error("Не удалось найти DEFAULT_SERVERS в файле index.html.");
+    
+    // Ищем конец массива (первое вхождение "];" после startIdx)
+    let endIdx = currentContent.indexOf(endMarker, startIdx);
+    if (endIdx === -1) throw new Error("Не удалось найти конец массива DEFAULT_SERVERS.");
+    endIdx += endMarker.length;
+    
+    const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
+    const newContent = currentContent.substring(0, startIdx) + 
+                       startMarker + newServersJson + ";" + 
+                       currentContent.substring(endIdx);
+    
+    // 3. Кодируем в Base64
+    const newContentBase64 = btoa(unescape(encodeURIComponent(newContent)));
+    
+    // 4. Отправляем PUT запрос
+    const putUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
+    const putRes = await fetch(putUrl, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: "Обновление списка серверов через админку",
+        content: newContentBase64,
+        sha: currentSha,
+        branch: branch
+      })
+    });
+    
+    if (!putRes.ok) {
+      const errData = await putRes.json();
+      throw new Error("Ошибка публикации: " + (errData.message || putRes.status));
+    }
+    
+    publishStatus.textContent = "Успешно опубликовано! GitHub Pages обновится через 1–2 минуты.";
+    publishStatus.className = "publish-status ok";
+    tokenInput.value = ""; // Очищаем поле визуально, токен остается в памяти
+    
+  } catch (err) {
+    publishStatus.textContent = "Ошибка: " + err.message;
+    publishStatus.className = "publish-status err";
+  } finally {
+    btnPublish.disabled = false;
+  }
+});
 
 loadServers();
 try {
