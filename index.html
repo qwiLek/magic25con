@@ -1,303 +1,286 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magic Rust — Подключение к серверам</title>
-<style>
-  :root {
-    --bg: #0f1115; --card: #171a21; --card-hover: #1e222b;
-    --accent: #e05a2b; --accent-hover: #ff6b35;
-    --text: #e6e6e6; --muted: #8b93a1; --border: #262b36;
-    --chip: #222732; --chip-active: #e05a2b;
-    --copy: #2a3140; --copy-hover: #343d4f;
-    --ok: #3ba55d; --warn: #c9a227; --soon: #e05a2b; --danger: #ff4d4d;
+const DEFAULT_ADMIN_USERS = {
+  "lekaggw": "qwerty123"
+};     const list = document.createElement("div"); list.className = "servers"; groups[dayKey].forEach(s => list.appendChild(renderServer(s))); dayEl.appendChild(list); menuEl.appendChild(dayEl);
+      });
+      return;
+    }
+    const list = document.createElement("div"); list.className = "servers"; filtered.forEach(s => list.appendChild(renderServer(s))); menuEl.appendChild(list);
+  } catch(e) { menuEl.innerHTML = '<div class="empty" style="color:#e05a2b">Ошибка при отображении.</div>'; }
+}
+
+function tickTimers() {
+  try { document.querySelectorAll(".wipe-timer").forEach(el => {
+    const ts = Number(el.dataset.wipeTs); if (!ts) return;
+    const cd = formatCountdown(ts - Date.now()); el.textContent = cd.text; el.className = "wipe-timer " + cd.cls;
+  }); } catch(e) {}
+}
+setInterval(tickTimers, 30000);
+
+/* --- ЛОГИКА АДМИНКИ --- */
+const adminModal = document.getElementById("adminModal");
+const authWidget = document.getElementById("authWidget");
+const adminList = document.getElementById("adminList");
+const btnClearForm = document.getElementById("btnClearForm");
+const editIdInput = document.getElementById("editId");
+const formId = document.getElementById("formId");
+const formDay = document.getElementById("formDay");
+const formTeam = document.getElementById("formTeam");
+const formType = document.getElementById("formType");
+const formCustomMode = document.getElementById("formCustomMode");
+const formIp = document.getElementById("formIp");
+const formPort = document.getElementById("formPort");
+const formNote = document.getElementById("formNote");
+const formWipeKey = document.getElementById("formWipeKey");
+
+function updateModeField() {
+  const teamLabel = TEAM_LABELS[formTeam.value] || formTeam.value;
+  const typeLabel = TYPE_LABELS[formType.value] || formType.value;
+  formCustomMode.placeholder = typeLabel + ", " + teamLabel;
+}
+formTeam.addEventListener("change", updateModeField);
+formType.addEventListener("change", updateModeField);
+updateModeField();
+
+document.getElementById("adminToggle").addEventListener("click", () => {
+  if (sessionStorage.getItem("adminLoggedIn") === "true") {
+    openAdmin();
+  } else {
+    if (authWidget.classList.contains("open")) authWidget.classList.remove("open");
+    else { authWidget.classList.add("open"); document.getElementById("authLogin").focus(); }
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 16px 64px; }
-  .wrap { max-width: 780px; margin: 0 auto; }
-  header { text-align: center; margin-bottom: 22px; }
-  header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
-  header h1 span { color: var(--accent); }
-  header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+});
+document.getElementById("authCloseBtn").addEventListener("click", () => {
+  authWidget.classList.remove("open");
+  document.getElementById("authError").style.display = "none";
+});
 
-  .filters { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 24px; position: sticky; top: 10px; z-index: 5; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
-  .filter-row { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-  .filter-row:last-child { margin-bottom: 0; }
-  .filter-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); width: 90px; flex-shrink: 0; padding-top: 5px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
-  .chip { background: var(--chip); color: var(--text); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; user-select: none; }
-  .chip:hover { border-color: #3a4252; }
-  .chip.active { background: var(--chip-active); border-color: var(--chip-active); color: #fff; font-weight: 600; }
-  .chip.wipe { font-size: 0.74rem; padding: 4px 9px; }
-  .reset { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; align-self: flex-start; white-space: nowrap; }
-  .reset:hover { color: var(--text); border-color: #3a4252; }
-
-  .day { margin-bottom: 22px; }
-  .day-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
-  .servers { display: grid; gap: 8px; }
-
-  .server { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; transition: background 0.15s, border-color 0.15s; }
-  .server:hover { background: var(--card-hover); border-color: #333a48; }
-  .info { min-width: 0; flex: 1; }
-  .name { font-weight: 600; font-size: 1rem; }
-  .name .tag { font-size: 0.72rem; font-weight: 500; color: var(--muted); background: #222732; padding: 2px 7px; border-radius: 5px; margin-left: 6px; vertical-align: middle; }
-  .meta { color: var(--muted); font-size: 0.8rem; margin-top: 3px; font-family: ui-monospace, "SF Mono", Menlo, monospace; word-break: break-all; }
-  .note { color: var(--warn); font-size: 0.78rem; margin-top: 4px; }
-  .wipe-block { margin-top: 6px; font-size: 0.8rem; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-  .wipe-label { color: var(--muted); }
-  .wipe-timer { font-weight: 600; font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); background: #222732; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); }
-  .wipe-timer.soon { color: #fff; background: var(--soon); border-color: var(--soon); }
-  .wipe-timer.today { color: #fff; background: var(--ok); border-color: var(--ok); }
-  .wipe-kind { font-size: 0.74rem; color: var(--muted); }
-  .wipe-kind b { color: var(--text); font-weight: 600; }
-
-  .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .copy-btn { width: 40px; height: 40px; padding: 0; background: var(--copy); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.05s; }
-  .copy-btn:hover { background: var(--copy-hover); border-color: #3a4252; }
-  .copy-btn:active { transform: scale(0.95); }
-  .copy-btn.copied { background: var(--ok); border-color: var(--ok); color: #fff; }
-  .copy-btn svg { width: 18px; height: 18px; display: block; }
-
-  .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.05s; white-space: nowrap; height: 40px; }
-  .btn:hover { background: var(--accent-hover); }
-  .btn:active { transform: scale(0.97); }
-
-  .empty { text-align: center; color: var(--muted); padding: 40px 16px; font-size: 0.95rem; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: #222732; color: var(--text); padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.88rem; box-shadow: 0 8px 30px rgba(0,0,0,0.5); transition: transform 0.25s ease; max-width: 90vw; text-align: center; z-index: 300; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast b { color: var(--accent); }
-  .toast code { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: #171a21; padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; color: #c9d1d9; }
-
-  /* Админка */
-  .admin-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 90; }
-  .admin-toggle:hover { background: var(--card-hover); }
-  .admin-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
-  .admin-modal.open { display: flex; }
-  .admin-content { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 24px; position: relative; }
-  .admin-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
-  .admin-close:hover { color: var(--text); }
+document.getElementById("authSubmit").addEventListener("click", () => {
+  const login = document.getElementById("authLogin").value.trim();
+  const pass = document.getElementById("authPassword").value;
   
-  .admin-title { font-size: 1.2rem; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-  .admin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .admin-form label { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--muted); gap: 4px; }
-  .admin-form input, .admin-form select { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px; color: var(--text); font-family: inherit; font-size: 0.9rem; }
-  .admin-form input:focus, .admin-form select:focus { outline: none; border-color: var(--accent); }
-  .admin-form input[readonly] { opacity: 0.7; cursor: not-allowed; }
-  
-  .admin-actions { display: flex; gap: 10px; margin-top: 12px; }
-  .admin-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
-  .btn-save { background: var(--accent); color: #fff; }
-  .btn-save:hover { background: var(--accent-hover); }
-  .btn-cancel { background: var(--copy); color: var(--text); border: 1px solid var(--border); }
-  .btn-cancel:hover { background: var(--copy-hover); }
-  
-  .admin-list { margin-top: 20px; }
-  .admin-item { display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-  .admin-item-info { flex: 1; font-size: 0.9rem; }
-  .admin-item-actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; }
-  .admin-item-actions .edit { color: var(--warn); }
-  .admin-item-actions .delete { color: var(--danger); }
-
-  /* Блок публикации */
-  .publish-box {
-    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  if (ADMIN_USERS[login] && ADMIN_USERS[login] === pass) {
+    sessionStorage.setItem("adminLoggedIn", "true");
+    authWidget.classList.remove("open");
+    document.getElementById("authLogin").value = "";
+    document.getElementById("authPassword").value = "";
+    document.getElementById("authError").style.display = "none";
+    openAdmin();
+  } else {
+    document.getElementById("authError").style.display = "block";
   }
-  .publish-box h3 { font-size: 1rem; margin-bottom: 10px; }
-  .publish-box .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
-  .publish-box .hint a { color: var(--accent); }
-  .publish-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .publish-row label { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--muted); gap: 4px; }
-  .publish-row input { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px; color: var(--text); font-family: inherit; font-size: 0.9rem; }
-  .publish-row input:focus { outline: none; border-color: var(--accent); }
-  
-  .btn-publish { background: var(--ok); color: #fff; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; margin-bottom: 8px; }
-  .btn-publish:hover { background: #2f8b4a; }
-  .btn-publish:disabled { opacity: 0.6; cursor: wait; }
-  
-  /* Кнопка скачивания файла (резервная) */
-  .btn-download { background: transparent; color: var(--text); border: 1px solid var(--border); width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
-  .btn-download:hover { background: var(--card-hover); }
+});
+document.getElementById("authPassword").addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("authSubmit").click(); });
+document.getElementById("authLogin").addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("authPassword").focus(); });
 
-  .publish-status { margin-top: 10px; font-size: 0.82rem; text-align: center; min-height: 1.2em; }
-  .publish-status.ok { color: var(--ok); }
-  .publish-status.err { color: var(--danger); }
+function openAdmin() { renderAdminList(); adminModal.classList.add("open"); }
+function closeAdmin() { adminModal.classList.remove("open"); }
 
-  /* Окно авторизации */
-  .auth-widget {
-    position: fixed; bottom: 80px; right: 20px;
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    z-index: 100; display: none; flex-direction: column; gap: 10px;
-    transform-origin: bottom right; animation: popIn 0.2s ease-out;
-  }
-  @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-  .auth-widget.open { display: flex; }
-  .auth-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .auth-header span { font-size: 0.95rem; font-weight: 600; }
-  .auth-close-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 4px; }
-  .auth-close-btn:hover { color: var(--text); }
-  .auth-widget input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; padding: 8px 10px; color: var(--text); font-size: 0.9rem;
-  }
-  .auth-widget input:focus { outline: none; border-color: var(--accent); }
-  .auth-widget button.submit {
-    width: 100%; background: var(--accent); color: #fff; border: none;
-    border-radius: 6px; padding: 9px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
-  }
-  .auth-widget button.submit:hover { background: var(--accent-hover); }
-  .auth-error { color: var(--danger); font-size: 0.75rem; text-align: center; display: none; }
-
-  @media (max-width: 560px) {
-    .server { flex-direction: column; align-items: stretch; }
-    .actions { justify-content: space-between; }
-    .copy-btn { width: 44px; height: 44px; }
-    .btn { flex: 1; height: 44px; }
-    .filter-label { width: 100%; padding-top: 0; margin-bottom: 2px; }
-    .filters { position: static; }
-    .admin-form, .publish-row { grid-template-columns: 1fr; }
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header>
-    <h1>Magic <span>Rust</span></h1>
-    <p>Выбери сервер и нажми «Подключиться» или скопируй команду для консоли</p>
-  </header>
-
-  <div class="filters">
-    <div class="filter-row">
-      <span class="filter-label">Команда</span>
-      <div class="chips" id="teamChips"></div>
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">Тип</span>
-      <div class="chips" id="typeChips"></div>
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">Вайп</span>
-      <div class="chips" id="wipeChips"></div>
-      <button class="reset" id="resetBtn">Сбросить</button>
-    </div>
-  </div>
-
-  <div id="menu"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- Кнопка шестеренки -->
-<button class="admin-toggle" id="adminToggle" title="Админка">⚙</button>
-
-<!-- Окно авторизации (появляется возле шестеренки) -->
-<div class="auth-widget" id="authWidget">
-  <div class="auth-header">
-    <span>Вход</span>
-    <button class="auth-close-btn" id="authCloseBtn" title="Закрыть">✕</button>
-  </div>
-  <input type="text" id="authLogin" placeholder="Логин">
-  <input type="password" id="authPassword" placeholder="Пароль">
-  <div class="auth-error" id="authError">Неверные данные</div>
-  <button class="submit" id="authSubmit">Войти</button>
-</div>
-
-<!-- Основное окно админки -->
-<div class="admin-modal" id="adminModal">
-  <div class="admin-content">
-    <button class="admin-close" id="adminClose">&times;</button>
-    <div class="admin-title">Управление серверами</div>
+function renderAdminList() {
+  adminList.innerHTML = "";
+  if (ALL_SERVERS.length === 0) { adminList.innerHTML = '<div class="empty">Список пуст.</div>'; return; }
+  ALL_SERVERS.slice().sort((a,b) => serverNumber(a.id) - serverNumber(b.id)).forEach((s) => {
+    const item = document.createElement("div"); item.className = "admin-item";
+    item.innerHTML = `<div class="admin-item-info"><b>${s.id}</b> — ${s.mode} (${s.ip}:${s.port}) <span style="color:var(--muted);font-size:0.8rem">[${s.day}]</span></div>
+      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div>`;
     
-    <div class="admin-form" id="adminForm">
-      <input type="hidden" id="editId" value="">
-      <label>ID сервера <input type="text" id="formId" placeholder="MR 36"></label>
-      <label>День вайпа
-        <select id="formDay">
-          <option value="mon">Пн</option><option value="tue">Вт</option><option value="wed">Ср</option>
-          <option value="thu">Чт</option><option value="fri">Пт</option><option value="sat">Сб</option>
-          <option value="sun">Вс</option><option value="month">1-й Чт</option>
-        </select>
-      </label>
-      <label>Команда
-        <select id="formTeam">
-          <option value="solo">Solo</option><option value="duo">Duo</option><option value="trio">Trio</option><option value="nolimit">No limit</option>
-        </select>
-      </label>
-      <label>Тип
-        <select id="formType">
-          <option value="vanilla">Vanilla</option><option value="modded">Modded</option><option value="classic">Classic</option>
-        </select>
-      </label>
-      <label>Кастомный режим (необязательно) <input type="text" id="formCustomMode" placeholder="Автогенерация"></label>
-      <label>IP <input type="text" id="formIp" placeholder="1.2.3.4"></label>
-      <label>Порт <input type="text" id="formPort" placeholder="10000"></label>
-      <label>Примечание <input type="text" id="formNote" placeholder="Доп. инфо"></label>
-      <label>Особый ключ (ДВ)
-        <select id="formWipeKey">
-          <option value="">Нет</option><option value="fri_far_east">Дальневосточный (10:00 МСК)</option>
-        </select>
-      </label>
-      <div style="grid-column: 1 / -1;" class="admin-actions">
-        <button class="btn-save" id="btnSaveServer">Сохранить сервер</button>
-        <button class="btn-cancel" id="btnClearForm" style="display:none">Отменить</button>
-      </div>
-    </div>
+    item.querySelector(".edit").addEventListener("click", () => {
+      editIdInput.value = s.id; formId.value = s.id; formDay.value = s.day; 
+      formTeam.value = s.team; formType.value = s.type; 
+      formCustomMode.value = s.mode; 
+      formIp.value = s.ip; formPort.value = s.port; formNote.value = s.note || ""; formWipeKey.value = s.wipeKey || "";
+      btnClearForm.style.display = "block"; updateModeField();
+      document.querySelector(".admin-form").scrollIntoView({ behavior: 'smooth' });
+    });
+    item.querySelector(".delete").addEventListener("click", () => {
+      if (confirm("Удалить сервер " + s.id + "?")) {
+        ALL_SERVERS = ALL_SERVERS.filter(x => x.id !== s.id); saveServers(); renderAdminList(); render();
+      }
+    });
+    adminList.appendChild(item);
+  });
+}
 
-    <div class="admin-list" id="adminList"></div>
+function clearForm() {
+  editIdInput.value = ""; formId.value = ""; formDay.value = "mon"; formTeam.value = "solo"; formType.value = "modded"; 
+  formCustomMode.value = ""; formIp.value = ""; formPort.value = ""; formNote.value = ""; formWipeKey.value = ""; 
+  btnClearForm.style.display = "none"; updateModeField();
+}
 
-    <button class="btn-cancel" id="btnResetDefault" style="width:100%;margin-top:10px;color:var(--danger);border-color:var(--danger);">Сбросить к заводским настройкам</button>
+document.getElementById("btnSaveServer").addEventListener("click", () => {
+  const id = formId.value.trim(), ip = formIp.value.trim(), port = formPort.value.trim();
+  if (!id || !ip || !port) return alert("Заполните ID, IP и Порт.");
+  
+  const teamLabel = TEAM_LABELS[formTeam.value] || formTeam.value;
+  const typeLabel = TYPE_LABELS[formType.value] || formType.value;
+  const autoMode = typeLabel + ", " + teamLabel;
+  const finalMode = formCustomMode.value.trim() || autoMode;
 
-    <!-- Блок публикации на GitHub -->
-    <div class="publish-box">
-      <h3>Публикация на GitHub</h3>
-      <div class="hint">
-        Один раз создайте <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Fine-grained token</a> с правом <b>Contents: Read and write</b> для этого репозитория. Токен хранится только в памяти вкладки и стирается при обновлении страницы.
-      </div>
-      <div class="publish-row">
-        <label>Владелец / Репозиторий
-          <input type="text" id="ghRepo" placeholder="username/rust-connect">
-        </label>
-        <label>Ветка
-          <input type="text" id="ghBranch" placeholder="main" value="main">
-        </label>
-      </div>
-      <div class="publish-row" style="grid-template-columns:1fr;">
-        <label>GitHub Token (не сохраняется)
-          <input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off">
-        </label>
-      </div>
-      <button class="btn-publish" id="btnPublish">Опубликовать на GitHub</button>
-      <button class="btn-download" id="btnDownload">Скачать index.html</button>
-      <div class="publish-status" id="publishStatus"></div>
-    </div>
-  </div>
-</div>
+  const serverData = { id, ip, port, day: formDay.value, mode: finalMode, team: formTeam.value, type: formType.value, note: formNote.value.trim(), wipeKey: formWipeKey.value };
 
-<script>
-// СПИСОК ПОЛЬЗОВАТЕЛЕЙ АДМИНКИ
-const ADMIN_USERS = {
-  "lekaggw": "qwerty123",
-  "rent": "123"
-};
+  const editId = editIdInput.value;
+  if (editId) {
+    const index = ALL_SERVERS.findIndex(x => x.id === editId); if (index !== -1) ALL_SERVERS[index] = serverData;
+  } else {
+    if (ALL_SERVERS.some(x => x.id === id)) return alert("Сервер с таким ID уже существует!");
+    ALL_SERVERS.push(serverData);
+  }
+  saveServers(); clearForm(); renderAdminList(); render(); showToast("Сервер сохранен!");
+});
 
-const WIPE_SCHEDULE = {
-  mon:   { title: "Вайп по понедельникам", next: "2026-11-09T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
-  tue:   { title: "Вайп по вторникам", next: "2026-11-10T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
-  wed:   { title: "Вайп по средам", next: "2026-11-11T14:00:00+03:00", kind: "Глобальный вайп" },
-  thu:   { title: "Вайп по четвергам", next: "2026-11-12T17:00:00+03:00", kind: "Вайп карты (без чертежей)" },
-  fri:   { title: "Вайп по пятницам", next: "2026-11-13T14:00:00+03:00", kind: "Вайп карты (без чертежей)" },
-  sat:   { title: "Вайп по субботам", next: "2026-11-07T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
-  sun:   { title: "Вайп по воскресеньям", next: "2026-11-08T14:00:00+03:00", kind: "Полный вайп (с чертежами)" },
-  month: { title: "Вайп в первый четверг месяца", next: "2026-12-03T14:00:00+03:00", kind: "Глобальный вайп (1-й четверг)" },
-};
+document.getElementById("btnClearForm").addEventListener("click", clearForm);
 
-const WIPE_SCHEDULE_FAR_EAST = {
-  fri: { title: "Вайп по пятницам (ДВ)", next: "2026-11-13T10:00:00+03:00", kind: "Вайп карты (без чертежей)" },
-};
+document.getElementById("btnResetDefault").addEventListener("click", () => {
+  if (confirm("Вы уверены, что хотите сбросить ВСЕ изменения и вернуть изначальный список серверов?")) {
+    localStorage.removeItem(STORAGE_KEY);
+    ALL_SERVERS = JSON.parse(JSON.stringify(DEFAULT_SERVERS));
+    saveServers(); clearForm(); renderAdminList(); render();
+    showToast("Список серверов сброшен к заводским настройкам.");
+  }
+});
 
-const WIPE_LABELS = { mon: "Пн", tue: "Вт", wed: "Ср", thu: "Чт", fri: "Пт", sat: "Сб", sun: "Вс", month: "1-й Чт" };
+document.getElementById("adminClose").addEventListener("click", closeAdmin);
+adminModal.addEventListener("click", (e) => { if (e.target === adminModal) closeAdmin(); });
 
+/* --- ПУБЛИКАЦИЯ И СКАЧИВАНИЕ --- */
+const btnPublish = document.getElementById("btnPublish");
+const btnDownload = document.getElementById("btnDownload");
+const publishStatus = document.getElementById("publishStatus");
+
+// Функция скачивания файла
+btnDownload.addEventListener("click", () => {
+  try {
+    const htmlContent = document.documentElement.outerHTML;
+    // Заменяем содержимое массива DEFAULT_SERVERS на актуальное
+    const startMarker = "const DEFAULT_SERVERS = ";
+    const endMarker = "];";
+    const startIdx = htmlContent.indexOf(startMarker);
+    const endIdx = htmlContent.indexOf(endMarker, startIdx) + endMarker.length;
+    
+    const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
+    const newContent = htmlContent.substring(0, startIdx) + 
+                       startMarker + newServersJson + ";" + 
+                       htmlContent.substring(endIdx);
+
+    const blob = new Blob([newContent], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    publishStatus.textContent = "Файл скачан! Замените им старый на GitHub.";
+    publishStatus.className = "publish-status ok";
+  } catch (err) {
+    publishStatus.textContent = "Ошибка скачивания: " + err.message;
+    publishStatus.className = "publish-status err";
+  }
+});
+
+// Публикация на GitHub
+btnPublish.addEventListener("click", async () => {
+  const repo = document.getElementById("ghRepo").value.trim();
+  const branch = document.getElementById("ghBranch").value.trim() || "main";
+  const tokenInput = document.getElementById("ghToken");
+  let token = ghTokenMemory;
+  if (!token) {
+    token = tokenInput.value.trim();
+    if (!token) {
+      publishStatus.textContent = "Введите GitHub токен.";
+      publishStatus.className = "publish-status err";
+      return;
+    }
+    ghTokenMemory = token;
+  }
+  
+  if (!repo || !repo.includes("/")) {
+    publishStatus.textContent = "Укажите репозиторий в формате username/repo.";
+    publishStatus.className = "publish-status err";
+    return;
+  }
+
+  btnPublish.disabled = true;
+  publishStatus.textContent = "Публикация...";
+  publishStatus.className = "publish-status";
+
+  try {
+    const getUrl = `https://api.github.com/repos/${repo}/contents/index.html?ref=${branch}`;
+    const getRes = await fetch(getUrl, { headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" } });
+    
+    if (!getRes.ok) throw new Error("Ошибка получения файла: " + getRes.status);
+    
+    const fileData = await getRes.json();
+    const currentSha = fileData.sha;
+    
+    // Декодируем Base64 в UTF-8 корректно (через TextDecoder)
+    const base64Content = fileData.content.replace(/\n/g, "");
+    const binaryString = atob(base64Content);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+    const currentContent = new TextDecoder().decode(bytes);
+    
+    const startMarker = "const DEFAULT_SERVERS = ";
+    const endMarker = "];";
+    const startIdx = currentContent.indexOf(startMarker);
+    if (startIdx === -1) throw new Error("Не удалось найти DEFAULT_SERVERS.");
+    
+    let endIdx = currentContent.indexOf(endMarker, startIdx);
+    if (endIdx === -1) throw new Error("Не удалось найти конец массива.");
+    endIdx += endMarker.length;
+    
+    const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
+    const newContent = currentContent.substring(0, startIdx) + startMarker + newServersJson + ";" + currentContent.substring(endIdx);
+    
+    // Кодируем обратно в Base64 корректно (через TextEncoder)
+    const newContentBytes = new TextEncoder().encode(newContent);
+    let binary = "";
+    for (let i = 0; i < newContentBytes.byteLength; i++) {
+        binary += String.fromCharCode(newContentBytes[i]);
+    }
+    const newContentBase64 = btoa(binary);
+    
+    const putUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
+    const putRes = await fetch(putUrl, {
+      method: "PUT",
+      headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Обновление списка серверов через админку",
+        content: newContentBase64,
+        sha: currentSha,
+        branch: branch
+      })
+    });
+    
+    if (!putRes.ok) {
+      const errData = await putRes.json();
+      throw new Error("Ошибка публикации: " + (errData.message || putRes.status));
+    }
+    
+    publishStatus.textContent = "Успешно опубликовано! GitHub Pages обновится через 1–2 минуты.";
+    publishStatus.className = "publish-status ok";
+    tokenInput.value = ""; 
+    
+  } catch (err) {
+    publishStatus.textContent = "Ошибка: " + err.message;
+    publishStatus.className = "publish-status err";
+  } finally {
+    btnPublish.disabled = false;
+  }
+});
+
+loadServers();
+try {
+  buildChips(teamChipsEl, TEAM_LABELS, "team");
+  buildChips(typeChipsEl, TYPE_LABELS, "type");
+  buildChips(wipeChipsEl, WIPE_LABELS, "wipe", "wipe");
+  document.getElementById("resetBtn").addEventListener("click", resetFilters);
+  render();
+} catch(e) { console.error("Ошибка инициализации:", e); }
+</script>
+</body>
+</html>
 const DEFAULT_SERVERS = [
   {
     "id": "MR 1",
@@ -641,424 +624,3 @@ const DEFAULT_SERVERS = [
     "port": "10000"
   }
 ];
-
-let ALL_SERVERS = [];
-const STORAGE_KEY = 'magicrust_servers';
-
-// Токен GitHub хранится ТОЛЬКО в переменной (в памяти), нигде не сохраняется
-let ghTokenMemory = "";
-
-function loadServers() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      ALL_SERVERS = JSON.parse(saved);
-      if (!Array.isArray(ALL_SERVERS) || ALL_SERVERS.length === 0) throw new Error("Empty");
-    } catch(e) { ALL_SERVERS = JSON.parse(JSON.stringify(DEFAULT_SERVERS)); }
-  } else { ALL_SERVERS = JSON.parse(JSON.stringify(DEFAULT_SERVERS)); }
-}
-function saveServers() { localStorage.setItem(STORAGE_KEY, JSON.stringify(ALL_SERVERS)); }
-
-const TEAM_LABELS = { solo: "Solo", duo: "Duo", trio: "Trio", nolimit: "No limit" };
-const TYPE_LABELS = { vanilla: "Vanilla", modded: "Modded", classic: "Classic" };
-const state = { team: new Set(), type: new Set(), wipe: new Set() };
-
-const menuEl = document.getElementById("menu");
-const toastEl = document.getElementById("toast");
-const teamChipsEl = document.getElementById("teamChips");
-const typeChipsEl = document.getElementById("typeChips");
-const wipeChipsEl = document.getElementById("wipeChips");
-
-const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-const CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-
-function serverNumber(id) { const m = id.match(/(\d+)/); return m ? parseInt(m[1], 10) : Infinity; }
-function sortServers(list) { return list.slice().sort((a, b) => { const na = serverNumber(a.id), nb = serverNumber(b.id); if (na !== nb) return na - nb; return a.id.localeCompare(b.id); }); }
-
-function showToast(html) {
-  try {
-    toastEl.innerHTML = html; toastEl.classList.add("show");
-    clearTimeout(showToast._t); showToast._t = setTimeout(() => toastEl.classList.remove("show"), 4500);
-  } catch(e) {}
-}
-function connect(server) {
-  try {
-    const address = server.ip + ":" + server.port;
-    window.location.href = "steam://run/252490//+connect%20" + encodeURIComponent(address);
-    showToast("Запускаю Rust и подключаюсь к <b>" + server.id + "</b>");
-  } catch(e) {}
-}
-function copyCommand(server, btn) {
-  try {
-    const cmd = "client.connect " + server.ip + ":" + server.port;
-    const ta = document.createElement("textarea"); ta.value = cmd; ta.style.position = "fixed"; ta.style.opacity = "0";
-    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-    btn.classList.add("copied"); btn.innerHTML = CHECK_ICON;
-    clearTimeout(btn._t); btn._t = setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = COPY_ICON; }, 2000);
-    showToast("Команда скопирована:<br><code>" + cmd + "</code>");
-  } catch(e) { showToast("Не удалось скопировать."); }
-}
-function buildChips(container, labels, stateKey, extraClass) {
-  container.innerHTML = "";
-  Object.entries(labels).forEach(([key, label]) => {
-    const chip = document.createElement("button");
-    chip.className = "chip" + (extraClass ? " " + extraClass : "");
-    chip.textContent = label; chip.dataset.key = key;
-    chip.addEventListener("click", () => {
-      if (state[stateKey].has(key)) state[stateKey].delete(key); else state[stateKey].add(key);
-      chip.classList.toggle("active"); render();
-    });
-    container.appendChild(chip);
-  });
-}
-function resetFilters() {
-  state.team.clear(); state.type.clear(); state.wipe.clear();
-  document.querySelectorAll(".chip.active").forEach(c => c.classList.remove("active")); render();
-}
-function matches(server) {
-  return (state.team.size === 0 || state.team.has(server.team)) &&
-         (state.type.size === 0 || state.type.has(server.type)) &&
-         (state.wipe.size === 0 || state.wipe.has(server.day));
-}
-function getNextWipe(dayKey, serverWipeKey) {
-  let cfg, actualKey = dayKey;
-  if (serverWipeKey === "fri_far_east") { cfg = WIPE_SCHEDULE_FAR_EAST.fri; actualKey = "fri"; } else { cfg = WIPE_SCHEDULE[dayKey]; }
-  if (!cfg) return null;
-  let next = new Date(cfg.next); const now = new Date();
-  if (actualKey === "month") {
-    while (next <= now) {
-      const y = next.getFullYear(), m = next.getMonth() + 1;
-      next = firstThursday(m > 11 ? y + 1 : y, m > 11 ? 0 : m, 14, 0);
-    }
-  } else { while (next <= now) { next = new Date(next.getTime() + 7 * 24 * 60 * 60 * 1000); } }
-  return { date: next, kind: cfg.kind };
-}
-function firstThursday(year, month, hour, minute) {
-  const d = new Date(year, month, 1, hour, minute, 0, 0);
-  d.setDate(1 + ((4 - d.getDay() + 7) % 7)); return d;
-}
-function formatCountdown(ms) {
-  if (ms <= 0) return { text: "идёт", cls: "today" };
-  const totalMin = Math.floor(ms / 60000), days = Math.floor(totalMin / (60 * 24)), hours = Math.floor((totalMin % (60 * 24)) / 60), mins = totalMin % 60;
-  const parts = []; if (days > 0) parts.push(days + " д"); if (days > 0 || hours > 0) parts.push(hours + " ч"); parts.push(mins + " мин");
-  return { text: parts.join(" "), cls: days === 0 ? "soon" : "" };
-}
-function formatDate(d) {
-  const dd = String(d.getDate()).padStart(2, "0"), mm = String(d.getMonth() + 1).padStart(2, "0"), yyyy = d.getFullYear(), hh = String(d.getHours()).padStart(2, "0"), mi = String(d.getMinutes()).padStart(2, "0");
-  return `${dd}.${mm}.${yyyy} ${hh}:${mi} МСК`;
-}
-
-function renderServer(s) {
-  const row = document.createElement("div"); row.className = "server";
-  const info = document.createElement("div"); info.className = "info";
-  const name = document.createElement("div"); name.className = "name"; name.innerHTML = s.id + ' <span class="tag">' + s.mode + '</span>'; info.appendChild(name);
-  const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = s.ip + ":" + s.port; info.appendChild(meta);
-  try {
-    const wipe = getNextWipe(s.day, s.wipeKey);
-    if (wipe) {
-      const cd = formatCountdown(wipe.date - new Date());
-      const block = document.createElement("div"); block.className = "wipe-block";
-      block.innerHTML = `<span class="wipe-label">Вайп через:</span><span class="wipe-timer ${cd.cls}" data-wipe-ts="${wipe.date.getTime()}">${cd.text}</span><span class="wipe-kind"><b>${wipe.kind}</b> · ${formatDate(wipe.date)}</span>`;
-      info.appendChild(block);
-    }
-  } catch (e) {}
-  if (s.note) { const note = document.createElement("div"); note.className = "note"; note.textContent = "⚠ " + s.note; info.appendChild(note); }
-  const actions = document.createElement("div"); actions.className = "actions";
-  const copyBtn = document.createElement("button"); copyBtn.className = "copy-btn"; copyBtn.innerHTML = COPY_ICON; copyBtn.addEventListener("click", () => copyCommand(s, copyBtn));
-  const btn = document.createElement("button"); btn.className = "btn"; btn.textContent = "Подключиться"; btn.addEventListener("click", () => connect(s));
-  actions.appendChild(copyBtn); actions.appendChild(btn); row.appendChild(info); row.appendChild(actions); return row;
-}
-
-function render() {
-  try {
-    menuEl.innerHTML = ""; const hasWipeFilter = state.wipe.size > 0;
-    const filtered = sortServers(ALL_SERVERS.filter(matches));
-    if (filtered.length === 0) { menuEl.innerHTML = '<div class="empty">Нет серверов под выбранные фильтры. Попробуй сбросить.</div>'; return; }
-    if (hasWipeFilter) {
-      const groups = {};
-      filtered.forEach(s => { if (!groups[s.day]) groups[s.day] = []; groups[s.day].push(s); });
-      ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "month"].forEach(dayKey => {
-        if (!groups[dayKey] || groups[dayKey].length === 0) return;
-        const dayEl = document.createElement("section"); dayEl.className = "day";
-        const title = document.createElement("div"); title.className = "day-title"; title.textContent = (WIPE_SCHEDULE[dayKey] ? WIPE_SCHEDULE[dayKey].title : dayKey) + "  ·  " + groups[dayKey].length; dayEl.appendChild(title);
-        const list = document.createElement("div"); list.className = "servers"; groups[dayKey].forEach(s => list.appendChild(renderServer(s))); dayEl.appendChild(list); menuEl.appendChild(dayEl);
-      });
-      return;
-    }
-    const list = document.createElement("div"); list.className = "servers"; filtered.forEach(s => list.appendChild(renderServer(s))); menuEl.appendChild(list);
-  } catch(e) { menuEl.innerHTML = '<div class="empty" style="color:#e05a2b">Ошибка при отображении.</div>'; }
-}
-
-function tickTimers() {
-  try { document.querySelectorAll(".wipe-timer").forEach(el => {
-    const ts = Number(el.dataset.wipeTs); if (!ts) return;
-    const cd = formatCountdown(ts - Date.now()); el.textContent = cd.text; el.className = "wipe-timer " + cd.cls;
-  }); } catch(e) {}
-}
-setInterval(tickTimers, 30000);
-
-/* --- ЛОГИКА АДМИНКИ --- */
-const adminModal = document.getElementById("adminModal");
-const authWidget = document.getElementById("authWidget");
-const adminList = document.getElementById("adminList");
-const btnClearForm = document.getElementById("btnClearForm");
-const editIdInput = document.getElementById("editId");
-const formId = document.getElementById("formId");
-const formDay = document.getElementById("formDay");
-const formTeam = document.getElementById("formTeam");
-const formType = document.getElementById("formType");
-const formCustomMode = document.getElementById("formCustomMode");
-const formIp = document.getElementById("formIp");
-const formPort = document.getElementById("formPort");
-const formNote = document.getElementById("formNote");
-const formWipeKey = document.getElementById("formWipeKey");
-
-function updateModeField() {
-  const teamLabel = TEAM_LABELS[formTeam.value] || formTeam.value;
-  const typeLabel = TYPE_LABELS[formType.value] || formType.value;
-  formCustomMode.placeholder = typeLabel + ", " + teamLabel;
-}
-formTeam.addEventListener("change", updateModeField);
-formType.addEventListener("change", updateModeField);
-updateModeField();
-
-document.getElementById("adminToggle").addEventListener("click", () => {
-  if (sessionStorage.getItem("adminLoggedIn") === "true") {
-    openAdmin();
-  } else {
-    if (authWidget.classList.contains("open")) authWidget.classList.remove("open");
-    else { authWidget.classList.add("open"); document.getElementById("authLogin").focus(); }
-  }
-});
-document.getElementById("authCloseBtn").addEventListener("click", () => {
-  authWidget.classList.remove("open");
-  document.getElementById("authError").style.display = "none";
-});
-
-document.getElementById("authSubmit").addEventListener("click", () => {
-  const login = document.getElementById("authLogin").value.trim();
-  const pass = document.getElementById("authPassword").value;
-  
-  if (ADMIN_USERS[login] && ADMIN_USERS[login] === pass) {
-    sessionStorage.setItem("adminLoggedIn", "true");
-    authWidget.classList.remove("open");
-    document.getElementById("authLogin").value = "";
-    document.getElementById("authPassword").value = "";
-    document.getElementById("authError").style.display = "none";
-    openAdmin();
-  } else {
-    document.getElementById("authError").style.display = "block";
-  }
-});
-document.getElementById("authPassword").addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("authSubmit").click(); });
-document.getElementById("authLogin").addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("authPassword").focus(); });
-
-function openAdmin() { renderAdminList(); adminModal.classList.add("open"); }
-function closeAdmin() { adminModal.classList.remove("open"); }
-
-function renderAdminList() {
-  adminList.innerHTML = "";
-  if (ALL_SERVERS.length === 0) { adminList.innerHTML = '<div class="empty">Список пуст.</div>'; return; }
-  ALL_SERVERS.slice().sort((a,b) => serverNumber(a.id) - serverNumber(b.id)).forEach((s) => {
-    const item = document.createElement("div"); item.className = "admin-item";
-    item.innerHTML = `<div class="admin-item-info"><b>${s.id}</b> — ${s.mode} (${s.ip}:${s.port}) <span style="color:var(--muted);font-size:0.8rem">[${s.day}]</span></div>
-      <div class="admin-item-actions"><button class="edit" title="Редактировать">✎</button><button class="delete" title="Удалить">🗑</button></div>`;
-    
-    item.querySelector(".edit").addEventListener("click", () => {
-      editIdInput.value = s.id; formId.value = s.id; formDay.value = s.day; 
-      formTeam.value = s.team; formType.value = s.type; 
-      formCustomMode.value = s.mode; 
-      formIp.value = s.ip; formPort.value = s.port; formNote.value = s.note || ""; formWipeKey.value = s.wipeKey || "";
-      btnClearForm.style.display = "block"; updateModeField();
-      document.querySelector(".admin-form").scrollIntoView({ behavior: 'smooth' });
-    });
-    item.querySelector(".delete").addEventListener("click", () => {
-      if (confirm("Удалить сервер " + s.id + "?")) {
-        ALL_SERVERS = ALL_SERVERS.filter(x => x.id !== s.id); saveServers(); renderAdminList(); render();
-      }
-    });
-    adminList.appendChild(item);
-  });
-}
-
-function clearForm() {
-  editIdInput.value = ""; formId.value = ""; formDay.value = "mon"; formTeam.value = "solo"; formType.value = "modded"; 
-  formCustomMode.value = ""; formIp.value = ""; formPort.value = ""; formNote.value = ""; formWipeKey.value = ""; 
-  btnClearForm.style.display = "none"; updateModeField();
-}
-
-document.getElementById("btnSaveServer").addEventListener("click", () => {
-  const id = formId.value.trim(), ip = formIp.value.trim(), port = formPort.value.trim();
-  if (!id || !ip || !port) return alert("Заполните ID, IP и Порт.");
-  
-  const teamLabel = TEAM_LABELS[formTeam.value] || formTeam.value;
-  const typeLabel = TYPE_LABELS[formType.value] || formType.value;
-  const autoMode = typeLabel + ", " + teamLabel;
-  const finalMode = formCustomMode.value.trim() || autoMode;
-
-  const serverData = { id, ip, port, day: formDay.value, mode: finalMode, team: formTeam.value, type: formType.value, note: formNote.value.trim(), wipeKey: formWipeKey.value };
-
-  const editId = editIdInput.value;
-  if (editId) {
-    const index = ALL_SERVERS.findIndex(x => x.id === editId); if (index !== -1) ALL_SERVERS[index] = serverData;
-  } else {
-    if (ALL_SERVERS.some(x => x.id === id)) return alert("Сервер с таким ID уже существует!");
-    ALL_SERVERS.push(serverData);
-  }
-  saveServers(); clearForm(); renderAdminList(); render(); showToast("Сервер сохранен!");
-});
-
-document.getElementById("btnClearForm").addEventListener("click", clearForm);
-
-document.getElementById("btnResetDefault").addEventListener("click", () => {
-  if (confirm("Вы уверены, что хотите сбросить ВСЕ изменения и вернуть изначальный список серверов?")) {
-    localStorage.removeItem(STORAGE_KEY);
-    ALL_SERVERS = JSON.parse(JSON.stringify(DEFAULT_SERVERS));
-    saveServers(); clearForm(); renderAdminList(); render();
-    showToast("Список серверов сброшен к заводским настройкам.");
-  }
-});
-
-document.getElementById("adminClose").addEventListener("click", closeAdmin);
-adminModal.addEventListener("click", (e) => { if (e.target === adminModal) closeAdmin(); });
-
-/* --- ПУБЛИКАЦИЯ И СКАЧИВАНИЕ --- */
-const btnPublish = document.getElementById("btnPublish");
-const btnDownload = document.getElementById("btnDownload");
-const publishStatus = document.getElementById("publishStatus");
-
-// Функция скачивания файла
-btnDownload.addEventListener("click", () => {
-  try {
-    const htmlContent = document.documentElement.outerHTML;
-    // Заменяем содержимое массива DEFAULT_SERVERS на актуальное
-    const startMarker = "const DEFAULT_SERVERS = ";
-    const endMarker = "];";
-    const startIdx = htmlContent.indexOf(startMarker);
-    const endIdx = htmlContent.indexOf(endMarker, startIdx) + endMarker.length;
-    
-    const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
-    const newContent = htmlContent.substring(0, startIdx) + 
-                       startMarker + newServersJson + ";" + 
-                       htmlContent.substring(endIdx);
-
-    const blob = new Blob([newContent], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "index.html";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    publishStatus.textContent = "Файл скачан! Замените им старый на GitHub.";
-    publishStatus.className = "publish-status ok";
-  } catch (err) {
-    publishStatus.textContent = "Ошибка скачивания: " + err.message;
-    publishStatus.className = "publish-status err";
-  }
-});
-
-// Публикация на GitHub
-btnPublish.addEventListener("click", async () => {
-  const repo = document.getElementById("ghRepo").value.trim();
-  const branch = document.getElementById("ghBranch").value.trim() || "main";
-  const tokenInput = document.getElementById("ghToken");
-  let token = ghTokenMemory;
-  if (!token) {
-    token = tokenInput.value.trim();
-    if (!token) {
-      publishStatus.textContent = "Введите GitHub токен.";
-      publishStatus.className = "publish-status err";
-      return;
-    }
-    ghTokenMemory = token;
-  }
-  
-  if (!repo || !repo.includes("/")) {
-    publishStatus.textContent = "Укажите репозиторий в формате username/repo.";
-    publishStatus.className = "publish-status err";
-    return;
-  }
-
-  btnPublish.disabled = true;
-  publishStatus.textContent = "Публикация...";
-  publishStatus.className = "publish-status";
-
-  try {
-    const getUrl = `https://api.github.com/repos/${repo}/contents/index.html?ref=${branch}`;
-    const getRes = await fetch(getUrl, { headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" } });
-    
-    if (!getRes.ok) throw new Error("Ошибка получения файла: " + getRes.status);
-    
-    const fileData = await getRes.json();
-    const currentSha = fileData.sha;
-    
-    // Декодируем Base64 в UTF-8 корректно (через TextDecoder)
-    const base64Content = fileData.content.replace(/\n/g, "");
-    const binaryString = atob(base64Content);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-    const currentContent = new TextDecoder().decode(bytes);
-    
-    const startMarker = "const DEFAULT_SERVERS = ";
-    const endMarker = "];";
-    const startIdx = currentContent.indexOf(startMarker);
-    if (startIdx === -1) throw new Error("Не удалось найти DEFAULT_SERVERS.");
-    
-    let endIdx = currentContent.indexOf(endMarker, startIdx);
-    if (endIdx === -1) throw new Error("Не удалось найти конец массива.");
-    endIdx += endMarker.length;
-    
-    const newServersJson = JSON.stringify(ALL_SERVERS, null, 2);
-    const newContent = currentContent.substring(0, startIdx) + startMarker + newServersJson + ";" + currentContent.substring(endIdx);
-    
-    // Кодируем обратно в Base64 корректно (через TextEncoder)
-    const newContentBytes = new TextEncoder().encode(newContent);
-    let binary = "";
-    for (let i = 0; i < newContentBytes.byteLength; i++) {
-        binary += String.fromCharCode(newContentBytes[i]);
-    }
-    const newContentBase64 = btoa(binary);
-    
-    const putUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
-    const putRes = await fetch(putUrl, {
-      method: "PUT",
-      headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: "Обновление списка серверов через админку",
-        content: newContentBase64,
-        sha: currentSha,
-        branch: branch
-      })
-    });
-    
-    if (!putRes.ok) {
-      const errData = await putRes.json();
-      throw new Error("Ошибка публикации: " + (errData.message || putRes.status));
-    }
-    
-    publishStatus.textContent = "Успешно опубликовано! GitHub Pages обновится через 1–2 минуты.";
-    publishStatus.className = "publish-status ok";
-    tokenInput.value = ""; 
-    
-  } catch (err) {
-    publishStatus.textContent = "Ошибка: " + err.message;
-    publishStatus.className = "publish-status err";
-  } finally {
-    btnPublish.disabled = false;
-  }
-});
-
-loadServers();
-try {
-  buildChips(teamChipsEl, TEAM_LABELS, "team");
-  buildChips(typeChipsEl, TYPE_LABELS, "type");
-  buildChips(wipeChipsEl, WIPE_LABELS, "wipe", "wipe");
-  document.getElementById("resetBtn").addEventListener("click", resetFilters);
-  render();
-} catch(e) { console.error("Ошибка инициализации:", e); }
-</script>
-</body>
-</html>
