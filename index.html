@@ -286,7 +286,8 @@
   </div>
 </div>
 
-<script id="app-script">
+<!-- ИЗМЕНЕНИЕ: Убрали id="app-script", чтобы не было конфликта с генерацией -->
+<script>
 // ==================== ДАННЫЕ ПО УМОЛЧАНИЮ ====================
 const DEFAULT_ADMIN_USERS = {
   "lekaggw": "qwerty123",
@@ -674,43 +675,46 @@ const btnDownload = document.getElementById("btnDownload");
 const publishStatus = document.getElementById("publishStatus");
 
 function generateNewHtml() {
-  // Берем исходный код из тега script, а не из outerHTML, чтобы избежать поломок
-  const scriptContent = document.getElementById("app-script").textContent;
+  // Берем исходный код из тега script, НО используем регулярное выражение для поиска,
+  // так как мы убрали id="app-script".
+  const htmlContent = document.documentElement.outerHTML;
+  
+  // Находим границы нашего основного скрипта (от начала работы с данными до конца)
+  const scriptStartStr = "// ==================== ДАННЫЕ ПО УМОЛЧАНИЮ ====================";
+  const scriptEndStr = "loadData();"; // Это конец скрипта
+  
+  const idxScriptStart = htmlContent.indexOf(scriptStartStr);
+  const idxScriptEnd = htmlContent.indexOf(scriptEndStr, idxScriptStart);
+  
+  if (idxScriptStart === -1 || idxScriptEnd === -1) throw new Error("Не удалось найти границы скрипта для обновления.");
+
+  let newScript = htmlContent.substring(idxScriptStart, idxScriptEnd);
   
   // 1. Сервера
   const startServers = "const DEFAULT_SERVERS = ";
   const endServers = "];";
-  const idxServersStart = scriptContent.indexOf(startServers);
-  const idxServersEnd = scriptContent.indexOf(endServers, idxServersStart) + endServers.length;
+  const idxServersStart = newScript.indexOf(startServers);
+  const idxServersEnd = newScript.indexOf(endServers, idxServersStart) + endServers.length;
   
   // 2. Пользователи
   const startUsers = "const DEFAULT_ADMIN_USERS = ";
   const endUsers = "};";
-  const idxUsersStart = scriptContent.indexOf(startUsers);
-  const idxUsersEnd = scriptContent.indexOf(endUsers, idxUsersStart) + endUsers.length;
+  const idxUsersStart = newScript.indexOf(startUsers);
+  const idxUsersEnd = newScript.indexOf(endUsers, idxUsersStart) + endUsers.length;
   
   // 3. Расписание
   const startSched = "const DEFAULT_WIPE_SCHEDULE = ";
   const endSched = "};";
-  const idxSchedStart = scriptContent.indexOf(startSched);
-  const idxSchedEnd = scriptContent.indexOf(endSched, idxSchedStart) + endSched.length;
+  const idxSchedStart = newScript.indexOf(startSched);
+  const idxSchedEnd = newScript.indexOf(endSched, idxSchedStart) + endSched.length;
   
   // Собираем новый скрипт
-  let newScript = scriptContent;
-  
   newScript = newScript.substring(0, idxSchedStart) + startSched + JSON.stringify(WIPE_SCHEDULE, null, 2) + ";" + newScript.substring(idxSchedEnd);
   newScript = newScript.substring(0, idxUsersStart) + startUsers + JSON.stringify(ADMIN_USERS, null, 2) + ";" + newScript.substring(idxUsersEnd);
   newScript = newScript.substring(0, idxServersStart) + startServers + JSON.stringify(ALL_SERVERS, null, 2) + ";" + newScript.substring(idxServersEnd);
   
-  // Заменяем скрипт в общем HTML
-  const htmlContent = document.documentElement.outerHTML;
-  const scriptStartTag = '<script id="app-script">';
-  const scriptEndTag = '</script>';
-  
-  const htmlStartIdx = htmlContent.indexOf(scriptStartTag) + scriptStartTag.length;
-  const htmlEndIdx = htmlContent.indexOf(scriptEndTag, htmlStartIdx);
-  
-  return htmlContent.substring(0, htmlStartIdx) + newScript + htmlContent.substring(htmlEndIdx);
+  // Вставляем обновленный скрипт обратно в HTML
+  return htmlContent.substring(0, idxScriptStart) + newScript + htmlContent.substring(idxScriptEnd);
 }
 
 btnDownload.addEventListener("click", () => {
