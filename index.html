@@ -1,10 +1,440 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta http-equiv="refresh" content="0; url=steam://run/252490//+connect%2025.magicrust.gg">
-    <title>Подключение к Rust</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Rust — Подключение к серверам</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --card-hover: #1e222b;
+    --accent: #e05a2b;
+    --accent-hover: #ff6b35;
+    --text: #e6e6e6;
+    --muted: #8b93a1;
+    --border: #262b36;
+    --chip: #222732;
+    --chip-active: #e05a2b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 22px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+
+  /* ---- Панель фильтров ---- */
+  .filters {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    position: sticky;
+    top: 10px;
+    z-index: 5;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  }
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--chip);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    user-select: none;
+  }
+  .chip:hover { border-color: #3a4252; }
+  .chip.active {
+    background: var(--chip-active);
+    border-color: var(--chip-active);
+    color: #fff;
+    font-weight: 600;
+  }
+  .reset {
+    margin-left: auto;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .reset:hover { color: var(--text); border-color: #3a4252; }
+
+  /* ---- Список ---- */
+  .day { margin-bottom: 22px; }
+  .day-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+  }
+  .servers { display: grid; gap: 8px; }
+
+  .server {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .server:hover { background: var(--card-hover); border-color: #333a48; }
+
+  .info { min-width: 0; }
+  .name { font-weight: 600; font-size: 1rem; }
+  .name .tag {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: #222732;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .meta {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 3px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    word-break: break-all;
+  }
+  .note { color: #c9a227; font-size: 0.78rem; margin-top: 4px; }
+
+  .btn {
+    flex-shrink: 0;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: scale(0.97); }
+
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 16px;
+    font-size: 0.95rem;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: #222732;
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transition: transform 0.25s ease;
+    max-width: 90vw;
+    text-align: center;
+    z-index: 10;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast b { color: var(--accent); }
+
+  @media (max-width: 520px) {
+    .server { flex-direction: column; align-items: stretch; }
+    .btn { width: 100%; padding: 11px; }
+    .filter-label { width: 100%; margin-bottom: 2px; }
+    .filters { position: static; }
+  }
+</style>
 </head>
 <body>
-    <p>Если Steam не открылся автоматически, <a href="steam://run/252490//+connect%2025.magicrust.gg">нажмите сюда</a>.</p>
+<div class="wrap">
+  <header>
+    <h1>Magic <span>Rust</span></h1>
+    <p>Выбери сервер и нажми «Подключиться»</p>
+  </header>
+
+  <div class="filters">
+    <div class="filter-row">
+      <span class="filter-label">Команда</span>
+      <div class="chips" id="teamChips"></div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Тип</span>
+      <div class="chips" id="typeChips"></div>
+      <button class="reset" id="resetBtn">Сбросить всё</button>
+    </div>
+  </div>
+
+  <div id="menu"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------------------------------------------------------------
+// Данные. team: solo | duo | trio | nolimit
+//          type: vanilla | modded | classic
+// ---------------------------------------------------------------
+const DAYS = [
+  {
+    title: "Вайп по понедельникам",
+    servers: [
+      { id: "MR 2",  mode: "Modded, Duo",          team: "duo",      type: "modded",  ip: "80.242.59.57",    port: "10000" },
+      { id: "MR 6",  mode: "Modded, Trio",         team: "trio",     type: "modded",  ip: "185.207.214.25",  port: "20000" },
+      { id: "MR 9",  mode: "Vanilla 2x, No limit", team: "nolimit",  type: "vanilla", ip: "185.207.214.23",  port: "10000" },
+      { id: "MR 10", mode: "Modded, Trio",         team: "trio",     type: "modded",  ip: "185.207.214.23",  port: "20000" },
+      { id: "MR 11", mode: "Modded, Trio",         team: "trio",     type: "modded",  ip: "185.207.214.134", port: "20000" },
+      { id: "MR 15", mode: "Modded, No limit",     team: "nolimit",  type: "modded",  ip: "185.207.214.27",  port: "20000" },
+      { id: "MR 16", mode: "Modded, Solo",         team: "solo",     type: "modded",  ip: "185.189.255.130", port: "20000" },
+      { id: "MR 17", mode: "Modded, Duo",          team: "duo",      type: "modded",  ip: "185.207.214.28",  port: "20000" },
+      { id: "MR 20", mode: "Vanilla 2x, No limit", team: "nolimit",  type: "vanilla", ip: "185.207.214.118", port: "20000" },
+      { id: "MR 24", mode: "Vanilla 2x, Trio",     team: "trio",     type: "vanilla", ip: "185.207.214.221", port: "10000" },
+    ]
+  },
+  {
+    title: "Вайп по вторникам",
+    servers: [
+      { id: "MR 32", mode: "Modded, Duo", team: "duo", type: "modded", ip: "80.242.59.229", port: "10000" },
+    ]
+  },
+  {
+    title: "Вайп по средам",
+    servers: [
+      { id: "MR 18", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.21",    port: "10000", note: "На глобал вайп в четверг" },
+      { id: "MR 29", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.189.255.188", port: "10000", note: "На глобал ждёт своего вайпа в среду" },
+      { id: "MR 33", mode: "Modded, NoLimit",      team: "nolimit", type: "modded",  ip: "80.242.59.231",   port: "10000" },
+      { id: "MR 34", mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.232",   port: "10000" },
+    ]
+  },
+  {
+    title: "Вайп по четвергам",
+    servers: [
+      { id: "MR 25",   mode: "Modded 2x, Duo",    team: "duo",     type: "modded",  ip: "80.242.59.229",   port: "20000", note: "Вайп в 14:00 МСК" },
+      { id: "MR Main", mode: "Classic, No limit", team: "nolimit", type: "classic", ip: "185.207.214.136", port: "10000" },
+    ]
+  },
+  {
+    title: "Вайп в первый четверг месяца",
+    servers: [
+      { id: "MR Long", mode: "Classic, No limit",            team: "nolimit", type: "classic", ip: "80.242.59.250", port: "10000" },
+      { id: "MR 27",   mode: "Vanilla 2x Monthly, No limit", team: "nolimit", type: "vanilla", ip: "80.242.59.227", port: "10000" },
+    ]
+  },
+  {
+    title: "Вайп по пятницам",
+    servers: [
+      { id: "MR 1",  mode: "Modded, Solo",         team: "solo",    type: "modded",  ip: "185.207.214.25",  port: "10000" },
+      { id: "MR 3",  mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "80.242.59.46",    port: "20000" },
+      { id: "MR 4",  mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.24",  port: "10000" },
+      { id: "MR 5",  mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.24",  port: "20000" },
+      { id: "MR 7",  mode: "Modded, Trio",         team: "trio",    type: "modded",  ip: "185.207.214.22",  port: "10000" },
+      { id: "MR 8",  mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.22",  port: "20000" },
+      { id: "MR 12", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "185.207.214.21",  port: "10000" },
+      { id: "MR 13", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.134", port: "10000" },
+      { id: "MR 14", mode: "Modded, No limit",     team: "nolimit", type: "modded",  ip: "80.242.59.71",    port: "10000" },
+      { id: "MR 19", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.207.214.27",  port: "10000" },
+      { id: "MR 21", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "152.89.199.34",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК" },
+      { id: "MR 22", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.130", port: "10000", note: "Раз в 2 недели" },
+      { id: "MR 23", mode: "Vanilla 2x, Trio",     team: "trio",    type: "vanilla", ip: "185.207.214.21",  port: "20000" },
+      { id: "MR 26", mode: "Vanilla 2x, Duo",      team: "duo",     type: "vanilla", ip: "185.207.214.221", port: "20000" },
+      { id: "MR 28", mode: "Modded, Duo",          team: "duo",     type: "modded",  ip: "152.89.199.55",   port: "10000", note: "Дальневосточный · Вайп в 10:00 МСК" },
+    ]
+  },
+  {
+    title: "Вайп по субботам",
+    servers: [
+      { id: "MR 30", mode: "Modded 2x, Duo", team: "duo", type: "modded", ip: "80.242.59.57", port: "20000" },
+    ]
+  },
+  {
+    title: "Вайп по воскресеньям",
+    servers: [
+      { id: "MR 31", mode: "Modded 2x, Duo",       team: "duo",     type: "modded",  ip: "80.242.59.46",    port: "10000" },
+      { id: "MR 35", mode: "Vanilla 2x, No limit", team: "nolimit", type: "vanilla", ip: "185.189.255.188", port: "20000" },
+    ]
+  },
+];
+
+const TEAM_LABELS = { solo: "Solo", duo: "Duo", trio: "Trio", nolimit: "No limit" };
+const TYPE_LABELS = { vanilla: "Vanilla", modded: "Modded", classic: "Classic" };
+
+// ---------------------------------------------------------------
+// Состояние фильтров (Set — чтобы можно было выбрать несколько)
+// ---------------------------------------------------------------
+const state = { team: new Set(), type: new Set() };
+
+const menuEl   = document.getElementById("menu");
+const toastEl  = document.getElementById("toast");
+const teamChipsEl = document.getElementById("teamChips");
+const typeChipsEl = document.getElementById("typeChips");
+
+function showToast(html) {
+  toastEl.innerHTML = html;
+  toastEl.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toastEl.classList.remove("show"), 4500);
+}
+
+function connect(server) {
+  const address = server.ip + ":" + server.port;
+  const steamUrl = "steam://run/252490//+connect%20" + encodeURIComponent(address);
+  window.location.href = steamUrl;
+  showToast("Запускаю Rust и подключаюсь к <b>" + server.id + "</b><br>" +
+            "Если Steam не открылся — разреши браузеру запустить приложение.");
+}
+
+// ---------------------------------------------------------------
+// Построение чипов-фильтров
+// ---------------------------------------------------------------
+function buildChips(container, labels, stateKey) {
+  container.innerHTML = "";
+  Object.entries(labels).forEach(([key, label]) => {
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.textContent = label;
+    chip.dataset.key = key;
+    chip.addEventListener("click", () => {
+      if (state[stateKey].has(key)) state[stateKey].delete(key);
+      else state[stateKey].add(key);
+      chip.classList.toggle("active");
+      render();
+    });
+    container.appendChild(chip);
+  });
+}
+
+function resetFilters() {
+  state.team.clear();
+  state.type.clear();
+  document.querySelectorAll(".chip.active").forEach(c => c.classList.remove("active"));
+  render();
+}
+
+// ---------------------------------------------------------------
+// Рендер списка с учётом фильтров
+// ---------------------------------------------------------------
+function matches(server) {
+  const teamOk = state.team.size === 0 || state.team.has(server.team);
+  const typeOk = state.type.size === 0 || state.type.has(server.type);
+  return teamOk && typeOk;
+}
+
+function render() {
+  menuEl.innerHTML = "";
+  let total = 0;
+
+  DAYS.forEach(day => {
+    const visible = day.servers.filter(matches);
+    if (visible.length === 0) return;
+    total += visible.length;
+
+    const dayEl = document.createElement("section");
+    dayEl.className = "day";
+
+    const title = document.createElement("div");
+    title.className = "day-title";
+    title.textContent = day.title + "  ·  " + visible.length;
+    dayEl.appendChild(title);
+
+    const list = document.createElement("div");
+    list.className = "servers";
+
+    visible.forEach(s => {
+      const row = document.createElement("div");
+      row.className = "server";
+
+      const info = document.createElement("div");
+      info.className = "info";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.innerHTML = s.id + ' <span class="tag">' + s.mode + '</span>';
+      info.appendChild(name);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = s.ip + ":" + s.port;
+      info.appendChild(meta);
+
+      if (s.note) {
+        const note = document.createElement("div");
+        note.className = "note";
+        note.textContent = "⚠ " + s.note;
+        info.appendChild(note);
+      }
+
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = "Подключиться";
+      btn.addEventListener("click", () => connect(s));
+
+      row.appendChild(info);
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+
+    dayEl.appendChild(list);
+    menuEl.appendChild(dayEl);
+  });
+
+  if (total === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Нет серверов под выбранные фильтры. Попробуй сбросить.";
+    menuEl.appendChild(empty);
+  }
+}
+
+// ---------------------------------------------------------------
+// Инициализация
+// ---------------------------------------------------------------
+buildChips(teamChipsEl, TEAM_LABELS, "team");
+buildChips(typeChipsEl, TYPE_LABELS, "type");
+document.getElementById("resetBtn").addEventListener("click", resetFilters);
+render();
+</script>
 </body>
 </html>
